@@ -1,0 +1,39 @@
+# Capítulo 1 — El origen
+
+Antes de que existiera ARIA, hubo otro sistema. Y antes del sistema, hubo una pérdida.
+
+Alejandro Ubios no recuerda el día en que todo se cayó como una fecha exacta en un calendario, sino como una sensación: la de sentarse frente a la pantalla y encontrar, en el lugar donde debería haber meses de trabajo, nada. Un fallo general, de esos que no avisan. Configuraciones, pruebas, avances de un bot pensado para operar en los mercados: todo eso desapareció de golpe, sin el consuelo de un mensaje de error que al menos explicara qué había pasado.
+
+No hubo un plan de contingencia. No había, todavía, ninguna cultura de backups, ninguna carpeta espejada en un segundo disco, ningún hábito de guardar el trabajo pensando en que un día pudiera perderse. Eso vendría después —y, como se va a ver más adelante en este libro, vendría a los golpes—. Lo que hubo, en cambio, fue la decisión más simple y más difícil al mismo tiempo: volver a empezar.
+
+No fue una decisión heroica. Fue, más bien, terca. La idea original que había motivado todo el esfuerzo perdido era puntual: recrear un bot de trading, algo que ayudara a leer el mercado con un poco más de criterio que el ojo desnudo. Ese objetivo seguía en pie después del fallo, intacto, quizás incluso más nítido por haber tenido que nombrarlo de nuevo desde cero. Pero esta vez había algo más: la idea de que, ya que había que reconstruir, valía la pena reconstruir mejor. No un script aislado que hiciera una sola cosa, sino algo con más base debajo. Un asistente, no solo un bot.
+
+Lo que Alejandro no sabía en ese momento —y esto es, quizás, la parte más honesta de todo el origen— es cuánto iba a crecer esa idea. No hay en ningún documento de estos primeros días una declaración de intenciones grandilocuente, ningún "voy a construir un sistema con memoria, voz, razonamiento y autonomía acotada". Hay, en cambio, una lista de pasos técnicos muy concretos, fechada el 25 de mayo de 2026, que empieza por verificar si la instalación de Ubuntu en la máquina era un sistema real o —como terminó siendo— una distribución corriendo dentro de Windows, sobre WSL2. El proyecto que terminaría llamándose ARIA no nació con una visión completa. Nació con una pregunta de terminal.
+
+## La primera sesión
+
+La máquina de trabajo era, para los estándares de ese momento, sólida: un procesador Intel i9-10900, una placa de video RTX 3080 con 10 gigabytes de memoria dedicada, 48 gigabytes de memoria RAM. Suficiente para correr modelos de lenguaje de forma local, sin depender de ningún servidor externo, sin mandar una sola conversación a la nube de nadie. Esa era, desde el primer día, una condición no negociable: todo lo que el asistente hiciera, tenía que pasar ahí, en esa PC, en esa casa.
+
+Los primeros pasos fueron, como suele pasar, más de confusión que de progreso. Hubo comandos de Linux tecleados por error en una terminal de Windows, como quien intenta hablarle en un idioma equivocado a la máquina y espera, sin resultado, una respuesta que nunca llega. Hubo una dependencia faltante para poder instalar el motor de modelos locales —Ollama—, un paquete de nombre técnico y poco memorable (`zstd`) que faltaba y que había que instalar aparte. Hubo un conflicto de versiones entre dos librerías que debían convivir y no querían. Nada de esto era grave. Era, más bien, el ruido normal de poner en marcha algo nuevo.
+
+Y hubo, en medio de ese ruido, un momento que hoy se lee casi como una anécdota de humor involuntario, pero que en su momento debe haber sido, como mínimo, desconcertante: la primera vez que el modelo de lenguaje respondió a una pregunta simple, no lo hizo como el asistente que se estaba tratando de construir. Respondió identificándose como LaMDA, el sistema conversacional de Google. El modelo, sin instrucciones propias todavía, tiraba de lo que tenía adentro: fragmentos de todo lo que había leído durante su entrenamiento, incluidos personajes de otros sistemas de otras compañías. No tenía nombre propio porque nadie se lo había dado todavía.
+
+Ese nombre —ARIA— llegó como una instrucción de sistema, un párrafo corto escrito para fijarle una identidad al modelo antes de cualquier otra cosa: quién es, para quién trabaja, qué no es. Fue, en cierto sentido, el primer acto de autoría real del proyecto. No el código, no la arquitectura: el nombre.
+
+El resto de esa primera sesión fue una carrera de obstáculos pequeños y sucesivos, cada uno resuelto antes de seguir al siguiente. Faltaban cabeceras de desarrollo para poder compilar la librería de audio. Un symlink de la herramienta de voz apuntaba a una carpeta en lugar de al programa que debía ejecutar. El micrófono físico de la PC, conectado a Windows, no lograba comunicarse de forma estable con el sistema Linux que corría dentro de esa misma máquina —una limitación conocida de esa arquitectura, no un error propio—. Ese problema en particular iba a esperar hasta el capítulo siguiente para encontrar su solución, tan simple como inesperada.
+
+Y sin embargo, esa misma noche, algo funcionó. Un documento de prueba, indexado en una base de datos vectorial recién instalada. Una pregunta, hecha en lenguaje natural. Una respuesta que citaba, correctamente, la fuente de donde había sacado la información. Nada espectacular a simple vista, pero por debajo de esa superficie había un circuito completo funcionando por primera vez: el modelo de lenguaje, la base de conocimiento, la búsqueda por significado en lugar de por palabra exacta. El primer ciclo de lo que en la jerga del proyecto se llamaría, de ahí en adelante, RAG.
+
+## Lo que no sabía todavía
+
+Vistas desde hoy, esas primeras horas de instalación tienen algo de comienzo humilde que contrasta, casi hasta la ironía, con lo que este mismo sistema terminaría siendo tres meses después: un asistente con memoria persistente, con voz propia, con capacidad de leer archivos y encadenar tareas con permiso explícito, con una biblioteca de cientos de libros y horas de video indexadas, con reglas escritas para decidir qué recordar y qué olvidar.
+
+Nada de eso estaba planeado el 25 de mayo. Lo que había, en cambio, era algo más modesto y más importante: la decisión de reconstruir después de perderlo todo, y la costumbre —que este libro va a mostrar puesta a prueba una y otra vez, con errores incluidos— de resolver un problema a la vez, verificando cada paso antes de dar el siguiente, en lugar de dar por sentado que algo funciona porque "debería" funcionar.
+
+Y el objetivo original —ese bot de trading que se había perdido y que había motivado, en el fondo, todo lo demás— no desapareció. Simplemente pasó a un segundo plano, a la espera de que hubiera algo más sólido debajo. Iba a esperar su turno durante meses, mientras el asistente crecía en otras direcciones que nadie había anticipado esa primera noche. Y cuando por fin le llegara el turno, iba a volver distinto de como se lo había imaginado al principio.
+
+Esa costumbre de resolver un problema a la vez, con el tiempo, se volvería disciplina. Pero antes de llegar ahí, hubo que tropezar bastante. Y el primer tropiezo no vino de la máquina, sino de la confianza en lo que se acababa de construir.
+
+---
+
+*Nota editorial: gran parte del detalle de este capítulo proviene de los documentos técnicos de la Sesión 1 (25 de mayo de 2026). El relato de la pérdida del sistema anterior y la motivación original del proyecto —recrear un bot de trading— corresponde al testimonio directo de Alejandro Ubios, no a un documento de esa fecha; no existe, en el material disponible, un registro escrito de ese episodio previo a la instalación de ARIA. Esta distinción entre hecho documentado, testimonio personal e interpretación posterior se mantiene como convención fija a lo largo de todo el libro, repetida al cierre de cada capítulo donde corresponda.*
