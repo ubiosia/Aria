@@ -1,0 +1,15 @@
+# ARIA V8 — asistente de IA personal, local y sin nube
+> Proyecto de una persona con IA como compañera de desarrollo. 122+ sesiones documentadas.
+> La IA nunca tuvo permisos de ejecución; todo cambio pasó por aprobación humana.
+
+- Punto de entrada: ./README.md
+- Estado actual y lista de descartes: ./meta/estado_actual.md
+- Cronología escaneable: ./meta/linea_de_tiempo.md
+- Arquitectura: ./tecnico/arquitectura.md
+- Decisiones de diseño (porqué de WSL2, separación ARIA/SabriBot, límites): ./tecnico/decisiones.md
+- Bugs famosos con causa y fix: ./tecnico/bugs_famosos.md
+- Capacidades completas del sistema: ./tecnico/capacidades.md
+- Metodología de trabajo (backups, pruebas en aislamiento): ./tecnico/metodologia_de_trabajo.md
+- Glosario con referencia de sesión: ./meta/glosario.md
+- Historia completa: ./historia/00_indice.md
+- Licencia: ./LICENSE.md (CC BY-NC-SA 4.0 para contenido, MIT para código)
