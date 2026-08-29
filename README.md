@@ -51,9 +51,9 @@ Qué funciona, qué falta y qué se descartó explícitamente: `/meta/estado_act
 
 | Carpeta | Qué hay |
 |---|---|
-| `/historia/` | El viaje completo, contado en capítulos (1-6 escritos; 7-11 planeados). |
-| `/tecnico/` | Respuestas rápidas sin historia: instalación, arquitectura, decisiones, bugs con causa y fix. |
-| `/meta/` | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
+| [`/historia/`](historia/) | El viaje completo, contado en capítulos (1-6 escritos; 7-11 planeados). |
+| [`/tecnico/`](tecnico/) | Respuestas rápidas sin historia: instalación, arquitectura, decisiones, bugs con causa y fix. |
+| [`/meta/`](meta/) | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
 
 ## Cómo seguir leyendo
 
