@@ -77,4 +77,4 @@ Contenido bajo CC BY-NC-SA 4.0, código bajo MIT. Ver [`LICENSE.md`](LICENSE.md)
 ## Agradecimientos
 
 A Sabri Conessa, por sus clases públicas de trading que alimentaron parte de la base de
-conocimiento. (Uso del nombre pendiente de su confirmación directa.)
+conocimiento. (Uso del nombre confirmado directamente por él.)

@@ -2,7 +2,7 @@
 
 ## Sabri Conessa
 
-> **Pendiente antes de publicar:** el uso del nombre real de Sabri Conessa en este documento está sujeto a su confirmación directa. No publicar este repositorio sin resolver este punto.
+> Sabri Conessa confirmó directamente el uso de su nombre real en este documento antes de la publicación del repositorio.
 
 Buena parte de lo que ARIA sabe sobre trading viene de los cursos gratuitos de Sabri Conessa, un trader que opera en vivo con su propio dinero — una condición que Alejandro valora en particular, porque no todo el que enseña a operar también lo demuestra en público. Su forma de explicar, clara y honesta, es la base sobre la que se construyó el "Curso Sabri" documentado en [`/historia/06_como_aria_aprendio_a_operar.md`](../historia/06_como_aria_aprendio_a_operar.md).
 
