@@ -78,3 +78,19 @@ Contenido bajo CC BY-NC-SA 4.0, código bajo MIT. Ver [`LICENSE.md`](LICENSE.md)
 
 A Sabri Conessa, por sus clases públicas de trading que alimentaron parte de la base de
 conocimiento. (Uso del nombre confirmado directamente por él.)
+
+## Legado — cómo continuar este proyecto
+
+Este trabajo no está terminado. Se detuvo en un momento real, por cansancio genuino de meses de trabajo sostenido por una sola persona — no porque no quedara nada más por hacer.
+
+Si leíste esto y tenés ideas, correcciones, o querés retomar alguna parte del proyecto donde quedó, escribime:
+
+📧 **ubiosia@gmail.com**
+
+Algunas formas concretas en las que podés aportar:
+- Señalar errores o inconsistencias que encuentres en la documentación
+- Proponer mejoras técnicas a la arquitectura descrita
+- Compartir tu propia experiencia si construiste algo parecido
+- Retomar cualquiera de los capítulos o módulos marcados como "planeados, no escritos todavía"
+
+No hace falta pedir permiso para explorar, aprender o inspirarte en este trabajo — para eso está publicado. Si además querés avisarme qué hiciste con él, me va a interesar genuinamente saberlo.
