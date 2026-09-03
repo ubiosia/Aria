@@ -289,6 +289,12 @@ if paso_completo paso6; then
     echo "  (ya completado en una corrida anterior, saltando -- usar --desde-cero para forzar)"
 else
 echo "--- Paso 6: Recreando symlinks de CUDA ---"
+# Nota (revisión Kimi): este paso asume Python 3.12 (ruta
+# lib/python3.12/site-packages hardcodeada abajo) y la estructura de
+# paquetes NVIDIA tal como los instala pip en esa versión. Puede fallar
+# sin aviso claro en otro entorno (otra version de Python, otra forma de
+# instalar CUDA, GPU de otro fabricante). Si tu instalación no es
+# exactamente esta, revisá las dos rutas antes de confiar en el resultado.
 
 sudo ln -sf "$HOME/asistente_env/lib/python3.12/site-packages/nvidia/cublas/lib/libcublas.so.12" /usr/lib/wsl/lib/libcublas.so.12 2>/dev/null
 sudo ln -sf "$HOME/asistente_env/lib/python3.12/site-packages/nvidia/cublas/lib/libcublasLt.so.12" /usr/lib/wsl/lib/libcublasLt.so.12 2>/dev/null
@@ -309,6 +315,12 @@ echo ""
 echo "  IMPORTANTE: esto va a sobreescribir archivos dentro de ~/asistente"
 echo "  con el contenido del backup (vectorstore, memoria_personal, documentos, etc)."
 echo ""
+# Nota (revisión Kimi): este paso NO tiene rollback. La extracción del
+# backup puede sobreescribir archivos existentes -- incluido un .env que
+# ya hubieras copiado a mano en un intento anterior -- sin guardar antes
+# una copia de lo que había. Si ya tenías algo en ~/asistente antes de
+# correr este paso, hacé tu propia copia de lo que te importe antes de
+# continuar.
 
 read -rp "  Ruta completa al backup completo mas reciente (ej. /mnt/d/ARIA_BACKUPS/completos/backup_completo_FECHA.tar.gz): " BACKUP_PATH
 

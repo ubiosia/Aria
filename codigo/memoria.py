@@ -208,8 +208,12 @@ class MemoriaPersonal:
                 query += " AND categoria = ?"
                 params.append(categoria)
             if terminos:
-                like_clauses = " OR ".join("dato LIKE ?" for _ in terminos)
-                query += f" AND ({like_clauses})"
+                # Corrección (revisión Kimi): antes se armaba este tramo con
+                # f-string. Los valores ya iban parametrizados con "?", pero
+                # se prefiere no depender de f-strings ni para la estructura
+                # de la consulta, aunque hoy no sea explotable.
+                like_clauses = " OR ".join(["dato LIKE ?"] * len(terminos))
+                query += " AND (" + like_clauses + ")"
                 params.extend(f"%{t}%" for t in terminos)
             cur = self._conn.execute(query, params)
             filas = cur.fetchall()
@@ -365,23 +369,29 @@ class MemoriaPersonal:
         existentes = {d["dato"] for d in datos_actuales}
         agregados = 0
 
-        for d in nuevos:
-            if d["dato"] not in existentes:
-                if USAR_SQLITE:
-                    fecha = d.get("fecha", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                    self._conn.execute(
-                        "INSERT INTO memoria_datos (dato, categoria, fecha_creado, vencimiento, ttl_horas) "
-                        "VALUES (?, ?, ?, ?, ?)",
-                        (d["dato"], d.get("categoria", "general"), fecha,
-                         d.get("vencimiento"), d.get("ttl_horas")),
-                    )
-                else:
-                    self.datos.append(d)
-                agregados += 1
-
+        # Corrección (revisión Kimi): los INSERT de SQLite antes se hacían
+        # uno por uno en el loop, sin transacción, con un solo commit() al
+        # final. Si el import fallaba a mitad de camino, quedaban datos
+        # parciales sin forma limpia de deshacerlos. "with self._conn:" abre
+        # una transacción que hace commit si todo el bloque termina bien, o
+        # rollback automático si algo lanza una excepción en el medio.
         if USAR_SQLITE:
-            self._conn.commit()
+            with self._conn:
+                for d in nuevos:
+                    if d["dato"] not in existentes:
+                        fecha = d.get("fecha", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                        self._conn.execute(
+                            "INSERT INTO memoria_datos (dato, categoria, fecha_creado, vencimiento, ttl_horas) "
+                            "VALUES (?, ?, ?, ?, ?)",
+                            (d["dato"], d.get("categoria", "general"), fecha,
+                             d.get("vencimiento"), d.get("ttl_horas")),
+                        )
+                        agregados += 1
         else:
+            for d in nuevos:
+                if d["dato"] not in existentes:
+                    self.datos.append(d)
+                    agregados += 1
             self._guardar_json()
 
         return f"Importados {agregados} datos nuevos (ignorados {len(nuevos) - agregados} duplicados)."
@@ -424,14 +434,14 @@ class MemoriaPersonal:
                 if not es_excepcion:
                     return self.consultar_todo()
 
-        match_ttl = re.search(r'olvida(?:r)? en (\d+) hora', msg_lower)
-        if match_ttl and any(p in msg_lower for p in ["recorda que", "recordá que", "guarda que", "guardá que"]):
-            horas = int(match_ttl.group(1))
-            dato = mensaje
-            for p in ["recorda que", "recordá que", "guarda que", "guardá que"]:
-                dato = dato.replace(p, "").strip()
-            dato = re.sub(r',?\s*olvida(?:r)? en \d+ hora[s]?', "", dato).strip()
-            return self.agregar_con_ttl(dato, horas=horas)
+        # Nota (revisión Kimi): había un segundo bloque acá que repetía el
+        # mismo match_ttl de más arriba, con una lista de prefijos más
+        # angosta. Se eliminó por redundante: el primer bloque (arriba en
+        # esta función) ya cubre el mismo patrón con una lista de prefijos
+        # más amplia y siempre corre primero; el segundo bloque solo era
+        # alcanzable en un caso borde degenerado (mensaje sin contenido real
+        # después de sacar el prefijo) y ahí terminaba guardando una entrada
+        # casi vacía.
 
         for p in ["recorda que", "recordá que", "guarda que", "guardá que"]:
             if msg_lower.startswith(p):

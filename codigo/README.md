@@ -25,6 +25,17 @@ Esta carpeta contiene código real de ARIA, tal como corre en producción, con s
 
 Se corrió `scan_secrets.py` sobre los 4 archivos ya sanitizados, en conjunto, contra una carpeta de trabajo temporal (no sobre esta carpeta directamente). Resultado: sin credenciales, tokens, rutas absolutas de usuario, ni identificadores de máquina. Únicas coincidencias: menciones a "Alejandro" (2, en `memoria.py`, ya evaluadas como de bajo riesgo — nombre público en el resto del repositorio) y menciones a nombres de plataformas de trading ("binance", "bingx", en `config_dominios.py`, no son secretos). Sin resultados de la búsqueda dirigida de "alejandro_ia" (usuario WSL2) o "DESKTOP-PKP99MR" (hostname) en ninguno de los 4 archivos.
 
+## Correcciones técnicas (revisión de Kimi, posteriores a la publicación inicial)
+
+Después de la primera publicación, Kimi revisó los 4 archivos y señaló 8 puntos, aplicados todos:
+
+- **`config_dominios.py`**: comentario de advertencia sobre los placeholders `[NOMBRE_FAMILIAR_N]` (sin reemplazarlos, esa parte del dominio "personal" queda inerte al clonar el repo). Se unificó `_normalizar_para_cache()` para que reutilice `normalizar()` en vez de reimplementar la misma lógica de tildes/minúsculas con un segundo `import unicodedata`.
+- **`memoria.py`**: `buscar_dato()` ya no arma el tramo `LIKE` de la consulta con f-string (los valores siempre fueron parametrizados con `?`, pero se evita también depender de f-strings para la estructura). `importar()` ahora hace los `INSERT` dentro de una transacción (`with self._conn:`), para no dejar datos parciales si falla a mitad de camino. Se eliminó un segundo bloque de parsing de "olvida en X horas" en `procesar_mensaje()` que era redundante con el primero (alcanzable solo en un caso borde degenerado).
+- **`auditar_decision.py`**: el import de `aria_paths` ahora tiene un fallback (mismo patrón que usa `memoria.py`) para que el script se pueda correr como ejemplo aislado, fuera del entorno completo de ARIA.
+- **`reconstruir_aria.sh`**: notas de advertencia agregadas como comentarios — el Paso 6 (symlinks de CUDA) asume Python 3.12 y la estructura de paquetes NVIDIA de esa versión; el Paso 7 (restaurar backup) no tiene rollback y puede sobreescribir archivos existentes, incluido un `.env` ya copiado a mano.
+
+Se verificó que los 3 archivos Python siguen compilando (`py_compile`) y que el script bash parsea sin errores (`bash -n`), y se corrió una prueba funcional de `memoria.py` (aprender, la búsqueda puntual "donde vivo", el bloque TTL restante, e `importar()` con la transacción nueva) sin cambios de comportamiento.
+
 ---
 
 *Pendiente de confirmación de Alejandro y del consejo de IAs antes de subir estos archivos a git.*

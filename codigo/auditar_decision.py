@@ -35,7 +35,17 @@ import sqlite3
 import json
 from datetime import datetime
 
-from aria_paths import BASE_DIR
+# Corrección (revisión Kimi): "aria_paths" es un módulo interno del
+# proyecto, no incluido en este repositorio — el import fallaba directo si
+# alguien intentaba correr este script como ejemplo aislado, fuera del
+# entorno completo de ARIA. Fallback: mismo patrón que ya usa memoria.py en
+# esta misma carpeta (ARIA_BASE_DIR con default a ~/asistente).
+try:
+    from aria_paths import BASE_DIR
+except ImportError:
+    import os
+    from pathlib import Path
+    BASE_DIR = Path(os.getenv("ARIA_BASE_DIR", str(Path.home() / "asistente")))
 
 RUTA_DB = BASE_DIR / "aria_traces.db"
 

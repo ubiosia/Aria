@@ -184,8 +184,16 @@ DOMINIOS = {
     },
     "personal": {
         "prioridad": 10,
-        # Nombres de familiares reemplazados por marcadores genéricos
-        # para este repositorio público (ver nota de sanitización arriba).
+        # ADVERTENCIA (revisión Kimi): los "[NOMBRE_FAMILIAR_N]" de abajo son
+        # marcadores de sanitización para este repositorio público, no datos
+        # funcionales. Tal como están, NUNCA van a matchear ningún mensaje
+        # real (nadie escribe literalmente "[NOMBRE_FAMILIAR_1]") — esta
+        # parte de la lista queda inerte si cloná este repo y corrés el
+        # código tal cual. Para que vuelva a funcionar en tu propia
+        # instalación, reemplazá cada marcador por el nombre real que
+        # quieras que el router reconozca, o eliminá los marcadores si no
+        # los necesitás (el resto del dominio "personal" sigue funcionando
+        # igual sin ellos).
         "palabras": ["resumen del dia", "resumen diario", "que hice hoy",
                      "modo jarvis", "modo trading", "modo creativo", "modo normal",
                      "como vas", "hola", "buenas", "buenos", "buenas noches",
@@ -386,7 +394,6 @@ def buscar_dominio_semantico(pregunta: str, umbral: float = 1.3):
 
 
 from functools import lru_cache
-import unicodedata
 
 def _normalizar_para_cache(pregunta: str) -> str:
     """
@@ -394,9 +401,14 @@ def _normalizar_para_cache(pregunta: str) -> str:
     equivalentes (mismas palabras, distinta escritura) como iguales:
     minusculas, sin tildes, sin signos de puntuacion en los bordes,
     sin espacios de mas.
+
+    Corrección (revisión Kimi): antes reimplementaba acá mismo, con un
+    segundo "import unicodedata", la misma lógica de minúsculas+sin-tildes
+    que ya existe en normalizar() más arriba en este archivo. Ahora
+    reutiliza esa función para esa parte, y solo agrega encima lo que
+    normalizar() no hace: recorte de puntuación y espacios múltiples.
     """
-    texto = pregunta.lower().strip()
-    texto = ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn')
+    texto = normalizar(pregunta.strip())
     # Quitar signos de interrogacion/exclamacion (apertura y cierre) y puntuacion final comun
     for signo in ['¿', '¡', '?', '!', '.', ',']:
         texto = texto.replace(signo, '')
