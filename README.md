@@ -56,11 +56,16 @@ Qué funciona, qué falta y qué se descartó explícitamente: `/meta/estado_act
 | [`/meta/`](meta/) | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
 | [`/codigo/`](codigo/) | Código real de ARIA, sanitizado — no fragmentos de ejemplo. |
 
-## Cómo seguir leyendo
+## Cómo seguir leyendo, según lo que busques
 
-- **"Quiero entender el viaje completo"** → `/historia/00_indice.md`
-- **"Quiero respuestas técnicas rápidas"** → `/tecnico/`
-- **"Quiero el estado real, los datos y el glosario"** → `/meta/`
+| | Si buscás esto... | Empezá acá |
+|---|---|---|
+| 🟢 | Un resumen rápido, sin comprometerte a leer todo | Ya lo tenés arriba, en la ficha del proyecto |
+| 🟡 | El viaje completo, capítulo a capítulo, con los tropiezos incluidos | [`/historia/00_indice.md`](historia/00_indice.md) |
+| 🔵 | Respuestas técnicas puntuales — instalación, arquitectura, decisiones, bugs con causa y fix | [`/tecnico/`](tecnico/) |
+| 🟣 | Los datos duros — estado real del sistema, línea de tiempo, glosario, agradecimientos | [`/meta/`](meta/) |
+
+¿Buscás código real y no solo la historia detrás? → [`/codigo/`](codigo/). ¿Te dan ganas de aportar algo? → [`CONTRIBUTING.md`](CONTRIBUTING.md) — este es un proyecto abierto, no un capítulo cerrado.
 
 ## Qué vas a encontrar y qué no
 
