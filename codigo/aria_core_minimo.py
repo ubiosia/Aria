@@ -44,7 +44,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from config_dominios import detectar_dominio
 
-CHROMA_DIR = Path.home() / "asistente" / "chroma_db_minimo"
+# Corrección (revisión Kimi, post-Fase 3): antes usaba Path.home() /
+# "asistente" / "chroma_db_minimo", una ruta fija que no tiene relación
+# con dónde se clona este repositorio. Ahora es relativa al propio
+# archivo, así que funciona sin importar dónde se clonó — vive como
+# carpeta hermana de esta (codigo/), en la raíz del repo.
+CHROMA_DIR = Path(__file__).resolve().parent.parent / "chroma_db_minimo"
 MODELO_OLLAMA = "llama3.1:8b"  # modelo principal, ver tecnico/instalacion.md sección 4
 
 

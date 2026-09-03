@@ -15,6 +15,7 @@ La mayoría de esta carpeta es código real de ARIA, tal como corre en producci�
 **Nuevo, didáctico — Fase 3, Punto 2 ("core mínimo ejecutable"):**
 
 - **`aria_core_minimo.py`** — versión mínima del orquestador, escrita para este repositorio, que sí corre de punta a punta: usa el `config_dominios.py` real de esta misma carpeta para rutear una pregunta, busca contexto en una colección local de ChromaDB, y le pasa el resultado a un modelo de Ollama. Con fallbacks claros si Ollama no está corriendo o la colección todavía no existe. Ver la explicación completa en el encabezado del archivo y la sección de abajo.
+- **`ingesta_minima.py`** (Fase 3.1) — crea la colección `dataset_ia` en ChromaDB con 3 documentos de ejemplo (identificados como tal en su propio texto), para que la primera prueba de `arrancar_aria.sh` devuelva contexto real en vez del mensaje de "todavía no existe la colección". Correrlo **antes** del primer `arrancar_aria.sh` (ver "Cómo probar el RAG con contexto real" más abajo).
 
 ## Por qué `aria_core.py` no está publicado
 
@@ -80,6 +81,26 @@ Después de la primera publicación, Kimi revisó los 4 archivos y señaló 8 pu
 - **`reconstruir_aria.sh`**: notas de advertencia agregadas como comentarios — el Paso 6 (symlinks de CUDA) asume Python 3.12 y la estructura de paquetes NVIDIA de esa versión; el Paso 7 (restaurar backup) no tiene rollback y puede sobreescribir archivos existentes, incluido un `.env` ya copiado a mano.
 
 Se verificó que los 3 archivos Python siguen compilando (`py_compile`) y que el script bash parsea sin errores (`bash -n`), y se corrió una prueba funcional de `memoria.py` (aprender, la búsqueda puntual "donde vivo", el bloque TTL restante, e `importar()` con la transacción nueva) sin cambios de comportamiento.
+
+## Cómo probar el RAG con contexto real
+
+`aria_core_minimo.py` funciona sin esto (con los mensajes de fallback ya descritos), pero para ver una respuesta con contexto recuperado de verdad:
+
+```
+python3 codigo/ingesta_minima.py        # una sola vez, antes del primer arranque
+./arrancar_aria.sh "que es un modelo de lenguaje"
+```
+
+`ingesta_minima.py` crea la colección `dataset_ia` con 3 documentos de ejemplo genéricos sobre LLMs, RAG y ChromaDB — marcados como ejemplo en su propio texto, no contenido real de la biblioteca de ARIA. Correr el script más de una vez no duplica nada (usa `upsert` con ids fijos).
+
+## Correcciones técnicas (Fase 3.1, revisión de Kimi sobre lo publicado en la Fase 3)
+
+- **`aria_core_minimo.py`**: `CHROMA_DIR` era `Path.home() / "asistente" / "chroma_db_minimo"` — una ruta fija sin relación con dónde se clona este repositorio. Ahora es `Path(__file__).resolve().parent.parent / "chroma_db_minimo"`, relativa al propio archivo. Verificado: la carpeta `chroma_db_minimo` aparece en la raíz del repo clonado, no en `~/asistente`, sin importar el valor de `$HOME`.
+- **`arrancar_aria.bat`**: no reinstalaba automáticamente si cambiaba `requirements-core.txt` (el `.sh` sí, con `-nt`). Se agregó la misma lógica usando `dir /o:d` para comparar fechas de modificación — **no verificado en Windows real** (mismo límite ya documentado para este archivo: el entorno de desarrollo es Linux). Si no reinstala cuando debería, borrar `venv\.requirements_core_instalados` a mano lo fuerza.
+- **`agente_sistema.py`**: `diagnostico_aria()` leía siempre `memoria_personal/conocimiento.json` (backend JSON viejo), aunque `memoria.py` migró a SQLite hace tiempo. Ahora respeta la misma variable `MEMORIA_SQL` que usa `memoria.py`, y cuenta desde el backend que esté activo. Verificado con una base SQLite de prueba (2 registros activos + 1 inactivo): el diagnóstico reportó "2 datos personales", ignorando correctamente el inactivo.
+- **`agente_noticias.py`**: `json.load(open(...))`/`json.dump(..., open(...))` sin `with` en dos lugares — cambiados a `with open(...) as f:`. Verificado con una escritura doble real: la segunda escritura conserva la categoría guardada por la primera. `analizar_sentimiento_noticias()` llamaba a Ollama por HTTP directo (`requests.post` a `/api/generate`) — unificado al cliente Python `ollama` (`ollama.Client(timeout=30).generate(...)`), el mismo que usa `aria_core_minimo.py`. Verificado: sin Ollama corriendo, sigue devolviendo el mismo fallback de siempre (`{"score": 0, "resumen": "Error al analizar sentimiento", ...}`), sin cambio de comportamiento.
+
+Escaneo de privacidad sobre los 4 archivos tocados: misma única coincidencia de siempre (`127.0.0.1` en `agente_sistema.py`, loopback, no una dirección real).
 
 ---
 

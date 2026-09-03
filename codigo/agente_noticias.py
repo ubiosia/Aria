@@ -66,7 +66,14 @@ class AgenteNoticias(AgenteBase):
         try:
             from ddgs import DDGS
             sitios_file = BASE_DIR / "sitios_preferidos.json"
-            sitios = json.load(open(sitios_file)) if sitios_file.exists() else {}
+            # Corrección (revisión Kimi, post-Fase 3): antes usaba
+            # json.load(open(...)) sin cerrar el file handle. "with" lo
+            # cierra siempre, incluso si json.load() lanza una excepción.
+            if sitios_file.exists():
+                with open(sitios_file) as f:
+                    sitios = json.load(f)
+            else:
+                sitios = {}
             queries = {
                 "crypto":     "noticias bitcoin ethereum crypto hoy",
                 "tecnologia": "noticias tecnologia IA hoy",
@@ -99,10 +106,19 @@ class AgenteNoticias(AgenteBase):
             return f"Error: {e}", []
 
     def _guardar(self, noticias, categoria):
+        # Corrección (revisión Kimi, post-Fase 3): mismo problema que en
+        # _buscar_noticias() — open() sin "with" no cierra el file handle
+        # explícitamente. Con "with" queda cerrado siempre, incluso si
+        # json.load()/json.dump() lanzan una excepción a mitad de camino.
         try:
-            cache = json.load(open(NOTICIAS_FILE)) if NOTICIAS_FILE.exists() else {}
+            if NOTICIAS_FILE.exists():
+                with open(NOTICIAS_FILE) as f:
+                    cache = json.load(f)
+            else:
+                cache = {}
             cache[categoria] = {"fecha": datetime.now().strftime("%Y-%m-%d %H:%M"), "noticias": noticias[:5]}
-            json.dump(cache, open(NOTICIAS_FILE,'w'), ensure_ascii=False, indent=2)
+            with open(NOTICIAS_FILE, 'w') as f:
+                json.dump(cache, f, ensure_ascii=False, indent=2)
         except Exception:
             pass
 
@@ -129,7 +145,6 @@ def analizar_sentimiento_noticias(noticias: list, simbolo: str = "crypto") -> di
     Devuelve: {"score": float, "resumen": str, "timestamp": int}
     """
     import time
-    import requests
     import json as _json
 
     if not noticias:
@@ -149,14 +164,19 @@ Respondé SOLO con este JSON sin texto adicional:
 {{"score": 7.5, "resumen": "descripcion breve en espanol"}}"""
 
     try:
-        r = requests.post("http://localhost:11434/api/generate", json={
-            "model": "llama3.2:3b",
-            "prompt": prompt,
-            "stream": False,
-            "options": {"temperature": 0.1, "num_predict": 100}
-        }, timeout=30)
-
-        texto = r.json().get("response", "").strip()
+        # Corrección (revisión Kimi, post-Fase 3): antes llamaba a Ollama
+        # por HTTP directo (requests.post a /api/generate). Se unifica al
+        # cliente Python "ollama" — el mismo que usa aria_core_minimo.py
+        # en esta misma carpeta — para no tener dos formas distintas de
+        # hablar con Ollama dentro del mismo repositorio.
+        import ollama
+        cliente = ollama.Client(timeout=30)
+        r = cliente.generate(
+            model="llama3.2:3b",
+            prompt=prompt,
+            options={"temperature": 0.1, "num_predict": 100},
+        )
+        texto = r.get("response", "").strip()
 
         # Extraer JSON de la respuesta
         import re

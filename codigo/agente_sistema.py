@@ -143,12 +143,28 @@ def diagnostico_aria() -> str:
     except:
         lineas.append("❌ GPU: nvidia-smi no responde")
 
-    # SQLite memoria
+    # Memoria personal
+    # Corrección (revisión Kimi, post-Fase 3): antes leía siempre
+    # memoria_personal/conocimiento.json, el backend JSON viejo. memoria.py
+    # (en esta misma carpeta) migró a SQLite por defecto hace tiempo — ver
+    # /historia/05_memoria_y_conocimiento.md. Ahora respeta la misma
+    # variable de entorno que memoria.py (MEMORIA_SQL) para contar del
+    # backend que realmente está activo, en vez de asumir uno fijo.
     try:
-        mem_file = BASE / "memoria_personal/conocimiento.json"
+        import os
         import json
-        datos = json.loads(mem_file.read_text(encoding="utf-8"))
-        count = len(datos) if isinstance(datos, list) else len(datos.get("datos", []))
+        usar_sqlite = os.getenv("MEMORIA_SQL", "true").lower() == "true"
+        if usar_sqlite:
+            db_file = BASE / "memoria_personal" / "memoria.db"
+            conn = sqlite3.connect(str(db_file))
+            count = conn.execute(
+                "SELECT COUNT(*) FROM memoria_datos WHERE activo = 1"
+            ).fetchone()[0]
+            conn.close()
+        else:
+            mem_file = BASE / "memoria_personal/conocimiento.json"
+            datos = json.loads(mem_file.read_text(encoding="utf-8"))
+            count = len(datos) if isinstance(datos, list) else len(datos.get("datos", []))
         lineas.append(f"✅ Memoria: {count} datos personales")
     except Exception as e:
         lineas.append(f"❌ Memoria: {e}")
