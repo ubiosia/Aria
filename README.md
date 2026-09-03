@@ -56,6 +56,19 @@ Qué funciona, qué falta y qué se descartó explícitamente: `/meta/estado_act
 | [`/meta/`](meta/) | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
 | [`/codigo/`](codigo/) | Código real de ARIA, sanitizado, más un core mínimo ejecutable (marcado como tal donde no es código real). |
 
+## Correr el core mínimo
+
+Este repositorio no es solo documentación — se puede clonar y correr una versión mínima real:
+
+```
+git clone https://github.com/ubiosia/Aria.git
+cd Aria
+./arrancar_aria.sh "que es un arbol binario"      # Linux/WSL2
+arrancar_aria.bat "que es un arbol binario"       # Windows
+```
+
+Eso arma un entorno virtual, instala solo lo que el core mínimo necesita (`requirements-core.txt`: `chromadb` + `ollama`, sin las dependencias de voz que sí lleva la instalación completa), rutea la pregunta con el mismo enrutador real que usa ARIA en producción (`codigo/config_dominios.py`), y busca contexto en ChromaDB antes de pasárselo a un modelo de Ollama. Sin Ollama corriendo o sin contenido indexado todavía, vas a ver mensajes claros en vez de un error — el enrutamiento se puede ver funcionando igual. Detalle completo, incluida la verificación funcional de qué se probó y qué no: [`/codigo/README.md`](codigo/README.md).
+
 ## Cómo seguir leyendo, según lo que busques
 
 | | Si buscás esto... | Empezá acá |
