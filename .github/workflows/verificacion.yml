@@ -7,6 +7,11 @@ name: Verificación
 # propósito, siguiendo el mismo criterio de "mantenerlo simple" que
 # arrancar_aria.sh/.bat (Fase 3, Punto 3): agregar complejidad después de
 # que lo básico funcione, no antes.
+#
+# Fase 3.5: se corre "pytest tests/ -v" (toda la carpeta) en vez de
+# nombrar cada archivo de test por separado, para que tests/test_memoria.py
+# (Fase 3.4, Punto 2) entre a correr en CI sin tener que volver a tocar
+# este workflow, y cualquier archivo de test futuro entre igual.
 
 on:
   push:
@@ -41,5 +46,5 @@ jobs:
       - name: Instalar pytest
         run: pip install pytest
 
-      - name: Tests de enrutamiento
-        run: pytest tests/test_enrutador.py -v
+      - name: Tests (enrutamiento y memoria)
+        run: pytest tests/ -v
