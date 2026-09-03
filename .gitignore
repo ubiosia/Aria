@@ -1,0 +1,19 @@
+# .gitignore — creado junto con .env.example (Fase 3, Punto 4)
+# No existía ninguno en el repositorio hasta este commit.
+
+# Nunca versionar el .env real (solo .env.example, con nombres, no valores)
+.env
+
+# Entorno virtual creado por arrancar_aria.sh / arrancar_aria.bat
+venv/
+
+# Artefactos de Python
+__pycache__/
+*.pyc
+
+# Colección local de ChromaDB que crea aria_core_minimo.py al correr
+codigo/chroma_db_minimo/
+asistente/chroma_db_minimo/
+
+# Archivo de marca que usa arrancar_aria.sh para no reinstalar de más
+venv/.requirements_core_instalados
