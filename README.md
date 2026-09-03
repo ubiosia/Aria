@@ -54,7 +54,7 @@ Qué funciona, qué falta y qué se descartó explícitamente: `/meta/estado_act
 | [`/historia/`](historia/) | El viaje completo, contado en capítulos (1-7 y 11 escritos; 8-10 planeados). |
 | [`/tecnico/`](tecnico/) | Respuestas rápidas sin historia: instalación, arquitectura, decisiones, bugs con causa y fix. |
 | [`/meta/`](meta/) | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
-| [`/codigo/`](codigo/) | Código real de ARIA, sanitizado — no fragmentos de ejemplo. |
+| [`/codigo/`](codigo/) | Código real de ARIA, sanitizado, más un core mínimo ejecutable (marcado como tal donde no es código real). |
 
 ## Cómo seguir leyendo, según lo que busques
 
