@@ -1,0 +1,21 @@
+# requirements-dev.txt — solo para quien quiera correr o escribir tests
+# en este repositorio (tests/test_enrutador.py, tests/test_memoria.py).
+#
+# No hace falta para correr el core mínimo (ver requirements-core.txt) ni
+# para nada de lo que describe /codigo/README.md — es exclusivamente para
+# contribuir o verificar el enrutador/memoria localmente, igual que hace
+# .github/workflows/verificacion.yml (que instala pytest directo en el
+# paso de CI, sin este archivo, para no depender de él).
+#
+# Uso:
+#   pip install -r requirements-dev.txt
+#   pytest tests/ -v
+
+pytest>=9.1            # [PyPI, 03/09/2026] — mínimo instalado y usado en verificación local de este repo
+
+# pytest-cov es opcional: solo si además de correr los tests querés ver
+# porcentaje de cobertura (pytest --cov=codigo tests/). No lo usa
+# .github/workflows/verificacion.yml ni ningún test actual del repo — se
+# deja comentado para no agregar una dependencia que nadie pidió usar
+# todavía (mismo criterio de "simple primero" de arrancar_aria.sh/.bat).
+# pytest-cov>=7.1       # [PyPI, 03/09/2026]
