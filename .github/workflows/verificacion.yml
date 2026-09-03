@@ -1,0 +1,45 @@
+name: Verificación
+
+# Fase 3.3: CI mínimo, sin Ollama/ChromaDB/credenciales — todo lo que
+# corre acá ya está diseñado para funcionar sin dependencias externas
+# (esa es la razón por la que tests/test_enrutador.py se escribió así en
+# la Fase 3.2). Sin matriz de versiones ni de sistemas operativos a
+# propósito, siguiendo el mismo criterio de "mantenerlo simple" que
+# arrancar_aria.sh/.bat (Fase 3, Punto 3): agregar complejidad después de
+# que lo básico funcione, no antes.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sintaxis de los .py en /codigo/ (py_compile)
+        run: |
+          for f in codigo/*.py; do
+            echo "-- py_compile: $f"
+            python3 -m py_compile "$f"
+          done
+
+      - name: Sintaxis de los .sh en /codigo/ (bash -n)
+        run: |
+          for f in codigo/*.sh; do
+            echo "-- bash -n: $f"
+            bash -n "$f"
+          done
+
+      - name: Instalar pytest
+        run: pip install pytest
+
+      - name: Tests de enrutamiento
+        run: pytest tests/test_enrutador.py -v
