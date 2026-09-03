@@ -67,6 +67,13 @@ DOCUMENTOS_DE_EJEMPLO = [
 
 IDS = [f"ejemplo_ia_{i + 1}" for i in range(len(DOCUMENTOS_DE_EJEMPLO))]
 
+# Metadata simple por documento (mejora sugerida por Kimi, Fase 3.2): no
+# hace falta para que el RAG funcione, pero sirve como referencia de cómo
+# se usa metadata en ChromaDB — cada documento queda marcado con su
+# fuente (para no confundirlo nunca con contenido real de la biblioteca
+# de ARIA) y su dominio.
+METADATAS = [{"fuente": "ejemplo", "dominio": "ia"} for _ in DOCUMENTOS_DE_EJEMPLO]
+
 
 def main():
     try:
@@ -80,7 +87,7 @@ def main():
     coleccion = cliente.get_or_create_collection(NOMBRE_COLECCION)
 
     try:
-        coleccion.upsert(documents=DOCUMENTOS_DE_EJEMPLO, ids=IDS)
+        coleccion.upsert(documents=DOCUMENTOS_DE_EJEMPLO, ids=IDS, metadatas=METADATAS)
     except Exception as e:
         print(
             "No se pudo generar el embedding de los documentos de ejemplo "
