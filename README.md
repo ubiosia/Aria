@@ -51,9 +51,10 @@ Qué funciona, qué falta y qué se descartó explícitamente: `/meta/estado_act
 
 | Carpeta | Qué hay |
 |---|---|
-| [`/historia/`](historia/) | El viaje completo, contado en capítulos (1-6 escritos; 7-11 planeados). |
+| [`/historia/`](historia/) | El viaje completo, contado en capítulos (1-7 y 11 escritos; 8-10 planeados). |
 | [`/tecnico/`](tecnico/) | Respuestas rápidas sin historia: instalación, arquitectura, decisiones, bugs con causa y fix. |
 | [`/meta/`](meta/) | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
+| [`/codigo/`](codigo/) | Código real de ARIA, sanitizado — no fragmentos de ejemplo. |
 
 ## Cómo seguir leyendo
 
@@ -83,7 +84,7 @@ conocimiento. (Uso del nombre confirmado directamente por él.)
 
 Este trabajo no está terminado. Se detuvo en un momento real, por cansancio genuino de meses de trabajo sostenido por una sola persona — no porque no quedara nada más por hacer.
 
-Si leíste esto y tenés ideas, correcciones, o querés retomar alguna parte del proyecto donde quedó, escribime:
+Si leíste esto y tenés ideas, correcciones, o querés retomar alguna parte del proyecto donde quedó, escribime (o mirá [`CONTRIBUTING.md`](CONTRIBUTING.md) para el detalle de las formas concretas de ayudar):
 
 📧 **ubiosia@gmail.com**
 
