@@ -30,7 +30,23 @@ if not exist venv (
 
 call venv\Scripts\activate.bat
 
+REM Corrección (revisión Kimi, post-Fase 3): antes solo revisaba si el
+REM archivo de marca existía, sin detectar un requirements-core.txt
+REM modificado después de la última instalación (el .sh sí lo hacía, con
+REM "-nt"). "dir /o:d" ordena por fecha de modificación; el último
+REM nombre que imprime es el más reciente de los dos.
+REM NO VERIFICADO EN WINDOWS REAL — este bloque no se pudo probar (el
+REM entorno de desarrollo es Linux). Si no reinstala cuando debería,
+REM borrá venv\.requirements_core_instalados a mano para forzarlo.
+set "REINSTALAR=0"
 if not exist venv\.requirements_core_instalados (
+    set "REINSTALAR=1"
+) else (
+    for /f "delims=" %%F in ('dir /b /o:d "requirements-core.txt" "venv\.requirements_core_instalados" 2^>nul') do set "MAS_RECIENTE=%%F"
+    if /i "!MAS_RECIENTE!"=="requirements-core.txt" set "REINSTALAR=1"
+)
+
+if "!REINSTALAR!"=="1" (
     echo Instalando dependencias del core minimo ^(requirements-core.txt: chromadb + ollama^)...
     pip install -q -r requirements-core.txt
     type nul > venv\.requirements_core_instalados

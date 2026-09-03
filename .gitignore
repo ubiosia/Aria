@@ -12,8 +12,8 @@ __pycache__/
 *.pyc
 
 # Colección local de ChromaDB que crea aria_core_minimo.py al correr
-codigo/chroma_db_minimo/
-asistente/chroma_db_minimo/
+# (Fase 3.1: CHROMA_DIR pasó a ser relativa al repo, no ~/asistente/)
+/chroma_db_minimo/
 
 # Archivo de marca que usa arrancar_aria.sh para no reinstalar de más
 venv/.requirements_core_instalados
