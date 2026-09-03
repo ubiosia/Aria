@@ -1,0 +1,34 @@
+# requirements-core.txt — SOLO lo que necesita codigo/aria_core_minimo.py
+#
+# ---------------------------------------------------------------------
+# Por qué existe este archivo, aparte de requirements.txt
+# ---------------------------------------------------------------------
+# requirements.txt (la lista completa, ver ese archivo para las citas de
+# cada paquete) incluye dependencias de voz (pyaudio, sounddevice,
+# faster-whisper) que necesitan paquetes de sistema — en particular
+# `portaudio19-dev` (apt), documentado en tecnico/instalacion.md sección
+# 2 — para compilar. Sin ese paquete de sistema, `pip install -r
+# requirements.txt` falla COMPLETO al intentar compilar pyaudio, y nunca
+# llega a instalar chromadb ni ollama — aunque aria_core_minimo.py no usa
+# audio para nada.
+#
+# Se confirmó este bloqueo corriendo la instalación real en un entorno
+# sin portaudio19-dev: pip corta con "fatal error: portaudio.h: No such
+# file or directory" al construir la wheel de pyaudio.
+#
+# Este archivo, en cambio, es exactamente lo que codigo/aria_core_minimo.py
+# importa — se verificó revisando sus imports directamente, no de
+# memoria: sys, pathlib (stdlib), config_dominios (este mismo
+# repositorio, sin dependencias externas propias más allá de stdlib), y
+# chromadb/ollama de forma perezosa dentro de las funciones. Nada más.
+#
+# arrancar_aria.sh (Fase 3, Punto 3) usa este archivo por defecto, no
+# requirements.txt completo. requirements.txt sigue siendo el que
+# describe TODO lo que usa ARIA en producción (voz, documentos, RAG,
+# servidor web, proveedores en la nube) — instalalo aparte cuando
+# quieras ir más allá del core mínimo, siguiendo tecnico/instalacion.md
+# completo (incluidos los paquetes de sistema de su sección 2).
+# ---------------------------------------------------------------------
+
+chromadb>=1.5            # [PyPI, 03/09/2026] — igual que en requirements.txt
+ollama                   # cliente Python del servidor Ollama local — igual que en requirements.txt

@@ -60,6 +60,16 @@ No es solo "compila" — se corrió de punta a punta, con el `config_dominios.py
 
 No se pudo probar una llamada real a Ollama (no hay un servidor Ollama corriendo en este entorno de verificación) — el camino de éxito de `preguntar_a_ollama()` no está probado end-to-end, solo su manejo de errores.
 
+## `arrancar_aria.sh` / `arrancar_aria.bat` (Fase 3, Punto 3) y `requirements-core.txt`
+
+Están en la raíz del repositorio, no en esta carpeta — arrancan todo el proyecto, no solo `/codigo/`. Se documentan acá porque están directamente ligados a `aria_core_minimo.py`.
+
+**Por qué existe `requirements-core.txt` aparte de `requirements.txt`**: se probó instalar `requirements.txt` completo en un entorno limpio, sin los paquetes de sistema de `/tecnico/instalacion.md` sección 2 (en particular `portaudio19-dev`). `pip install` falló completo — no parcial — al intentar compilar `pyaudio` (`fatal error: portaudio.h: No such file or directory`), sin llegar a instalar `chromadb` ni `ollama`, aunque `aria_core_minimo.py` no usa audio para nada. `requirements-core.txt` tiene solo lo que ese archivo importa de verdad (`chromadb`, `ollama` — confirmado revisando sus imports, no de memoria); `arrancar_aria.sh`/`.bat` lo usan por defecto.
+
+**Verificación real de `arrancar_aria.sh`**: se corrió, dos veces, en una copia aislada del repositorio simulando un clon nuevo (entorno sin `venv/`, sin `.env`, sin Ollama corriendo). Primera corrida (35 s): creó el `venv`, instaló `requirements-core.txt` sin bloquearse, avisó por la falta de `.env`, ruteó la pregunta con `config_dominios.py` real, y mostró los mensajes claros de ChromaDB/Ollama ya descritos arriba. Segunda corrida (0.6 s): no reinstaló dependencias — el archivo de marca (`venv/.requirements_core_instalados`) funcionó como se esperaba.
+
+**No verificado**: `arrancar_aria.bat` — este entorno de verificación es Linux, sin Windows disponible para correrlo. Se escribió siguiendo la misma lógica que `arrancar_aria.sh`, pero no se puede confirmar que el bloque de carga de `.env` en batch (más frágil que su equivalente en bash) funcione igual en todos los casos — si falla al cargar alguna variable con comillas o espacios, revisar ese bloque a mano.
+
 ## Correcciones técnicas (revisión de Kimi, posteriores a la publicación inicial)
 
 Después de la primera publicación, Kimi revisó los 4 archivos y señaló 8 puntos, aplicados todos:
