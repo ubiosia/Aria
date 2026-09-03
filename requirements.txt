@@ -1,0 +1,78 @@
+# requirements.txt — ARIA, core mínimo ejecutable (Fase 3, Punto 1)
+#
+# ---------------------------------------------------------------------
+# Por qué este archivo NO fija versiones exactas ("==")
+# ---------------------------------------------------------------------
+# tecnico/instalacion.md lo documenta con cita textual (sección 5):
+#
+#   "Instalar las dependencias principales sin fijar versiones exactas
+#   — el intento original con versiones fijas de `chromadb` y
+#   `langchain-chroma` generó un conflicto de dependencias irresoluble.
+#   Dejar que el gestor de paquetes resuelva la compatibilidad por sí
+#   solo evitó el problema."
+#
+# Y es una de las "cinco cosas que no se repetirían" del Capítulo 11
+# (historia/11_epilogo.md): "Fijar versiones exactas de dependencias
+# sin una razón real para hacerlo [...] resuelto, finalmente, dejando
+# que el propio gestor de paquetes decidiera qué versiones convivían
+# bien entre sí, en vez de forzar una combinación elegida a mano sin
+# haberla probado."
+#
+# Por eso este archivo usa mínimos (">=") donde hay algo que verificar,
+# y ningún número donde no lo hay — nunca "==". Los mínimos marcados
+# [PyPI, 03/09/2026] se confirmaron contra PyPI en esa fecha al escribir
+# este archivo; NO son una cita de un manual de sesión (ninguna versión
+# exacta de estos paquetes está documentada ahí). El resto de los
+# paquetes se deja sin ningún mínimo especificado, por no haber nada
+# que citar — instalar la versión que pip resuelva como compatible.
+# ---------------------------------------------------------------------
+
+# --- Núcleo: LLM local, RAG, servidor web ---
+gradio>=6.20             # [PyPI, 03/09/2026]. tecnico/instalacion.md línea 71
+ollama                   # cliente Python del servidor Ollama local. instalacion.md línea 71
+chromadb>=1.5            # [PyPI, 03/09/2026]. instalacion.md línea 71; ADR-005 en tecnico/decisiones.md
+langchain>=1.3           # [PyPI, 03/09/2026]. instalacion.md línea 72
+langchain-community      # instalacion.md línea 72
+langchain-ollama         # instalacion.md línea 72; también en el smoke test de codigo/reconstruir_aria.sh
+langchain-chroma         # instalacion.md línea 72 — el paquete cuya versión fija causó el conflicto (ver nota arriba)
+fastapi>=0.141           # [PyPI, 03/09/2026]. Smoke test de codigo/reconstruir_aria.sh; sirve api_aria.py y api_voz.py (instalacion.md)
+uvicorn                  # inferido: instalacion.md corre "uvicorn api_aria:app" / "uvicorn api_voz:app" (líneas 153 y 157); no hay una línea de pip install explícita solo para uvicorn en la fuente
+
+# --- Documentos e ingesta (RAG) ---
+pypdf                    # instalacion.md línea 73
+pymupdf                  # instalacion.md línea 73
+python-docx              # instalacion.md línea 73; también "docx" en el smoke test de reconstruir_aria.sh
+docx2txt                 # instalacion.md línea 73
+
+# --- Voz ---
+faster-whisper           # instalacion.md línea 74; aceleración GPU documentada en instalacion.md sección 7
+pyaudio                  # instalacion.md línea 74
+sounddevice              # instalacion.md línea 74
+soundfile                # instalacion.md línea 74
+
+# --- Utilidades generales ---
+requests                 # instalacion.md línea 75; también en el smoke test de reconstruir_aria.sh
+pydantic                 # instalacion.md línea 75
+youtube-transcript-api   # instalacion.md línea 75
+
+# --- Proveedores de inferencia en la nube ---
+# (agentes de trading/tecnología/IA cuando TRADING_MODE=CLOUD)
+# Citados en el smoke test de codigo/reconstruir_aria.sh, no en la lista
+# de pip install de instalacion.md — se agregaron en algún momento
+# posterior a esa guía. Las variables de entorno correspondientes
+# (GROQ_API_KEY, GROQ_API_KEY_TECNOLOGIA, GROQ_API_KEY_IA) están
+# documentadas en tecnico/configuracion.md.
+anthropic
+openai
+groq
+python-dotenv            # "dotenv" en el smoke test de reconstruir_aria.sh; carga el archivo .env
+
+# ---------------------------------------------------------------------
+# No incluido — por decisión documentada, no por descuido
+# ---------------------------------------------------------------------
+# CuPy se menciona en instalacion.md (Sección 0) como lo que acelera el
+# cálculo de indicadores técnicos (RSI/MACD/EMAs) sobre GPU, pero no
+# aparece en ningún comando de instalación con cita textual — por eso
+# no está en este archivo. Si tu instalación lo necesita, agregalo a
+# mano: el paquete correcto depende de tu versión de CUDA (por ejemplo,
+# cupy-cuda12x), y eso no está documentado en el material disponible.
