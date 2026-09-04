@@ -1,5 +1,9 @@
 # ARIA V8 — Asistente de IA personal, local y sin nube
 
+[![Verificación](https://github.com/ubiosia/Aria/actions/workflows/verificacion.yml/badge.svg)](https://github.com/ubiosia/Aria/actions/workflows/verificacion.yml)
+
+> ¿Primera vez acá? Empezá por [`START_HERE.md`](START_HERE.md).
+
 - **Autor:** Alejandro Ubios
 - **Propósito:** sistema de IA personal con memoria, RAG y autonomía acotada — construido por
   una persona sola, trabajando en equipo con IA como compañera de desarrollo.
@@ -55,6 +59,7 @@ Qué funciona, qué falta y qué se descartó explícitamente: `/meta/estado_act
 | [`/tecnico/`](tecnico/) | Respuestas rápidas sin historia: instalación, arquitectura, decisiones, bugs con causa y fix. |
 | [`/meta/`](meta/) | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
 | [`/codigo/`](codigo/) | Código real de ARIA, sanitizado, más un core mínimo ejecutable (marcado como tal donde no es código real). |
+| [`/tests/`](tests/) | Tests automatizados (enrutamiento, memoria) — corren en CI en cada push. |
 
 ## Correr el core mínimo
 
@@ -79,6 +84,8 @@ Eso arma un entorno virtual, instala solo lo que el core mínimo necesita (`requ
 | 🟣 | Los datos duros — estado real del sistema, línea de tiempo, glosario, agradecimientos | [`/meta/`](meta/) |
 
 ¿Buscás código real y no solo la historia detrás? → [`/codigo/`](codigo/). ¿Te dan ganas de aportar algo? → [`CONTRIBUTING.md`](CONTRIBUTING.md) — este es un proyecto abierto, no un capítulo cerrado.
+
+Este repo tiene verificación automática (CI) — ver el badge arriba. Corre en cada push: sintaxis de `/codigo/` y los tests de [`/tests/`](tests/).
 
 ## Qué vas a encontrar y qué no
 
