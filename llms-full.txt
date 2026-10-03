@@ -1,6 +1,7 @@
 # ARIA V8 — documentación técnica completa en un solo archivo
 > Este archivo junta README, tecnico/ y meta/ del repo https://github.com/ubiosia/Aria para leerse de una sola vez.
-> No incluye historia/ (relato narrativo) ni el código fuente; ver llms-raw.txt para esos enlaces.
+> Orden: primero lo técnico (README, tecnico/, meta/) y al final la historia narrativa (historia/).
+> No incluye el código fuente; ver llms-raw.txt para esos enlaces.
 > Generado el 2026-10-03 a partir del commit e7dff4f.
 
 ## Contenido
@@ -16,6 +17,15 @@
 - meta/linea_de_tiempo.md
 - meta/glosario.md
 - meta/agradecimientos.md
+- historia/00_indice.md
+- historia/01_el_origen.md
+- historia/02_los_primeros_tropiezos.md
+- historia/03_aprender_a_trabajar_en_serio.md
+- historia/04_el_bug_del_precio_del_oro.md
+- historia/05_memoria_y_conocimiento.md
+- historia/06_como_aria_aprendio_a_operar.md
+- historia/07_los_bugs_que_ensenaron_mas.md
+- historia/11_epilogo.md
 
 
 ================================================================
@@ -945,3 +955,438 @@ Este proyecto no tuvo ningún socio humano. Es un trabajo individual de Alejandr
 ---
 
 *Nota editorial: la participación de Kimi está documentada con cita textual en varios manuales de sesión de julio de 2026 (módulo de preferencias, Módulo 5, Módulo 6). No se pudo verificar con cita textual una versión anterior de este agradecimiento que atribuía a Kimi el hallazgo de una vulnerabilidad de seguridad o inyección específicamente durante la revisión del Módulo 9 — lo documentado y verificado es su participación real en el Módulo 6 (memoria avanzada), incluyendo un ajuste sobre el límite de inyección de contexto en `obtener_contexto()`, que es lo que se describe aquí en su lugar.*
+
+
+================================================================
+ARCHIVO: historia/00_indice.md
+================================================================
+
+# Índice — La historia de ARIA
+
+Esta carpeta cuenta, en forma de bitácora, el desarrollo real de ARIA entre mayo y agosto de 2026. Está pensada para leerse en orden, de principio a fin, aunque cada capítulo también funciona de forma independiente.
+
+## Escritos
+
+1. [El origen](01_el_origen.md) — la pérdida total que precedió al proyecto, y la primera instalación (25 de mayo de 2026).
+2. [Los primeros tropiezos](02_los_primeros_tropiezos.md) — los errores silenciosos de las primeras semanas: el casillero que mentía, la terminal confundida, el nombre real detrás del hotword "SOFIA".
+3. [Aprender a trabajar en serio](03_aprender_a_trabajar_en_serio.md) — la pérdida del disco virtual, el 22% de precisión que nadie había medido, y el nacimiento de la disciplina de backups y testing.
+4. [El bug del precio del oro](04_el_bug_del_precio_del_oro.md) — tres capas del sistema compitiendo por la misma palabra, y el mismo síntoma reapareciendo diez días después por una causa distinta.
+5. [Memoria y conocimiento](05_memoria_y_conocimiento.md) — el bug del "dónde vivo" diagnosticado tres veces, la migración a una base de datos real, y el cuestionario que definió qué vale la pena que ARIA recuerde.
+6. [Cómo ARIA aprendió a operar](06_como_aria_aprendio_a_operar.md) — el curso de Sabri Conessa, el método de capturas y transcripción, y el entrenamiento de un modelo propio que se probó y se descartó con criterio.
+7. [Los bugs que enseñaron más](07_los_bugs_que_ensenaron_mas.md) — un manual viejo mal categorizado, una lista de dominios hardcodeada, y la auditoría de datos personales que nació de encontrar el mismo bug dos veces.
+
+Escrito fuera de orden, antes que los capítulos 8 a 10 — es el cierre del libro, no depende de ellos para leerse:
+
+11. [Epílogo](11_epilogo.md) — reglas de trabajo que funcionaron, las que no se repetirían, y una guía breve para quien quiera empezar un proyecto parecido.
+
+## Planeados (no escritos todavía)
+
+Estos capítulos están definidos en su enfoque pero no redactados. El proyecto real de ARIA sigue activo; esta bitácora se retoma según tiempo e interés, no está abandonada.
+
+8. **Crecer en módulos** — decisiones de diseño detrás del crecimiento por módulos del sistema, incluyendo por qué se descartó el "Modo Jefe".
+9. **Los primeros pasos de autonomía** — el Módulo 9 y sus fases, incluida la búsqueda web (en período de prueba a fines de agosto de 2026).
+10. **Lo que es ARIA hoy** — una fotografía del sistema al cierre del material disponible. Para una versión siempre actualizada de esto, ver [`/meta/estado_actual.md`](../meta/estado_actual.md) en vez de esperar este capítulo.
+
+---
+
+*Nota editorial: parte del historial original del proyecto (aproximadamente las Sesiones 5 a 19, y la Sesión 27) no se conservó de forma independiente o no estuvo disponible al preparar este material — una porción de ese contenido se recuperó luego, embebida dentro de un documento compilado de otras sesiones, pero no la totalidad. Cada capítulo distingue, en su propia nota de cierre, entre hechos documentados, recuerdos personales de Alejandro Ubios, e interpretaciones técnicas posteriores.*
+
+
+================================================================
+ARCHIVO: historia/01_el_origen.md
+================================================================
+
+# Capítulo 1 — El origen
+
+Antes de que existiera ARIA, hubo otro sistema. Y antes del sistema, hubo una pérdida.
+
+Alejandro Ubios no recuerda el día en que todo se cayó como una fecha exacta en un calendario, sino como una sensación: la de sentarse frente a la pantalla y encontrar, en el lugar donde debería haber meses de trabajo, nada. Un fallo general, de esos que no avisan. Configuraciones, pruebas, avances de un bot pensado para operar en los mercados: todo eso desapareció de golpe, sin el consuelo de un mensaje de error que al menos explicara qué había pasado.
+
+No hubo un plan de contingencia. No había, todavía, ninguna cultura de backups, ninguna carpeta espejada en un segundo disco, ningún hábito de guardar el trabajo pensando en que un día pudiera perderse. Eso vendría después —y, como se va a ver más adelante en este libro, vendría a los golpes—. Lo que hubo, en cambio, fue la decisión más simple y más difícil al mismo tiempo: volver a empezar.
+
+No fue una decisión heroica. Fue, más bien, terca. La idea original que había motivado todo el esfuerzo perdido era puntual: recrear un bot de trading, algo que ayudara a leer el mercado con un poco más de criterio que el ojo desnudo. Ese objetivo seguía en pie después del fallo, intacto, quizás incluso más nítido por haber tenido que nombrarlo de nuevo desde cero. Pero esta vez había algo más: la idea de que, ya que había que reconstruir, valía la pena reconstruir mejor. No un script aislado que hiciera una sola cosa, sino algo con más base debajo. Un asistente, no solo un bot.
+
+Lo que Alejandro no sabía en ese momento —y esto es, quizás, la parte más honesta de todo el origen— es cuánto iba a crecer esa idea. No hay en ningún documento de estos primeros días una declaración de intenciones grandilocuente, ningún "voy a construir un sistema con memoria, voz, razonamiento y autonomía acotada". Hay, en cambio, una lista de pasos técnicos muy concretos, fechada el 25 de mayo de 2026, que empieza por verificar si la instalación de Ubuntu en la máquina era un sistema real o —como terminó siendo— una distribución corriendo dentro de Windows, sobre WSL2. El proyecto que terminaría llamándose ARIA no nació con una visión completa. Nació con una pregunta de terminal.
+
+## La primera sesión
+
+La máquina de trabajo era, para los estándares de ese momento, sólida: un procesador Intel i9-10900, una placa de video RTX 3080 con 10 gigabytes de memoria dedicada, 48 gigabytes de memoria RAM. Suficiente para correr modelos de lenguaje de forma local, sin depender de ningún servidor externo, sin mandar una sola conversación a la nube de nadie. Esa era, desde el primer día, una condición no negociable: todo lo que el asistente hiciera, tenía que pasar ahí, en esa PC, en esa casa.
+
+Los primeros pasos fueron, como suele pasar, más de confusión que de progreso. Hubo comandos de Linux tecleados por error en una terminal de Windows, como quien intenta hablarle en un idioma equivocado a la máquina y espera, sin resultado, una respuesta que nunca llega. Hubo una dependencia faltante para poder instalar el motor de modelos locales —Ollama—, un paquete de nombre técnico y poco memorable (`zstd`) que faltaba y que había que instalar aparte. Hubo un conflicto de versiones entre dos librerías que debían convivir y no querían. Nada de esto era grave. Era, más bien, el ruido normal de poner en marcha algo nuevo.
+
+Y hubo, en medio de ese ruido, un momento que hoy se lee casi como una anécdota de humor involuntario, pero que en su momento debe haber sido, como mínimo, desconcertante: la primera vez que el modelo de lenguaje respondió a una pregunta simple, no lo hizo como el asistente que se estaba tratando de construir. Respondió identificándose como LaMDA, el sistema conversacional de Google. El modelo, sin instrucciones propias todavía, tiraba de lo que tenía adentro: fragmentos de todo lo que había leído durante su entrenamiento, incluidos personajes de otros sistemas de otras compañías. No tenía nombre propio porque nadie se lo había dado todavía.
+
+Ese nombre —ARIA— llegó como una instrucción de sistema, un párrafo corto escrito para fijarle una identidad al modelo antes de cualquier otra cosa: quién es, para quién trabaja, qué no es. Fue, en cierto sentido, el primer acto de autoría real del proyecto. No el código, no la arquitectura: el nombre.
+
+El resto de esa primera sesión fue una carrera de obstáculos pequeños y sucesivos, cada uno resuelto antes de seguir al siguiente. Faltaban cabeceras de desarrollo para poder compilar la librería de audio. Un symlink de la herramienta de voz apuntaba a una carpeta en lugar de al programa que debía ejecutar. El micrófono físico de la PC, conectado a Windows, no lograba comunicarse de forma estable con el sistema Linux que corría dentro de esa misma máquina —una limitación conocida de esa arquitectura, no un error propio—. Ese problema en particular iba a esperar hasta el capítulo siguiente para encontrar su solución, tan simple como inesperada.
+
+Y sin embargo, esa misma noche, algo funcionó. Un documento de prueba, indexado en una base de datos vectorial recién instalada. Una pregunta, hecha en lenguaje natural. Una respuesta que citaba, correctamente, la fuente de donde había sacado la información. Nada espectacular a simple vista, pero por debajo de esa superficie había un circuito completo funcionando por primera vez: el modelo de lenguaje, la base de conocimiento, la búsqueda por significado en lugar de por palabra exacta. El primer ciclo de lo que en la jerga del proyecto se llamaría, de ahí en adelante, RAG.
+
+## Lo que no sabía todavía
+
+Vistas desde hoy, esas primeras horas de instalación tienen algo de comienzo humilde que contrasta, casi hasta la ironía, con lo que este mismo sistema terminaría siendo tres meses después: un asistente con memoria persistente, con voz propia, con capacidad de leer archivos y encadenar tareas con permiso explícito, con una biblioteca de cientos de libros y horas de video indexadas, con reglas escritas para decidir qué recordar y qué olvidar.
+
+Nada de eso estaba planeado el 25 de mayo. Lo que había, en cambio, era algo más modesto y más importante: la decisión de reconstruir después de perderlo todo, y la costumbre —que este libro va a mostrar puesta a prueba una y otra vez, con errores incluidos— de resolver un problema a la vez, verificando cada paso antes de dar el siguiente, en lugar de dar por sentado que algo funciona porque "debería" funcionar.
+
+Y el objetivo original —ese bot de trading que se había perdido y que había motivado, en el fondo, todo lo demás— no desapareció. Simplemente pasó a un segundo plano, a la espera de que hubiera algo más sólido debajo. Iba a esperar su turno durante meses, mientras el asistente crecía en otras direcciones que nadie había anticipado esa primera noche. Y cuando por fin le llegara el turno, iba a volver distinto de como se lo había imaginado al principio.
+
+Esa costumbre de resolver un problema a la vez, con el tiempo, se volvería disciplina. Pero antes de llegar ahí, hubo que tropezar bastante. Y el primer tropiezo no vino de la máquina, sino de la confianza en lo que se acababa de construir.
+
+---
+
+*Nota editorial: gran parte del detalle de este capítulo proviene de los documentos técnicos de la Sesión 1 (25 de mayo de 2026). El relato de la pérdida del sistema anterior y la motivación original del proyecto —recrear un bot de trading— corresponde al testimonio directo de Alejandro Ubios, no a un documento de esa fecha; no existe, en el material disponible, un registro escrito de ese episodio previo a la instalación de ARIA. Esta distinción entre hecho documentado, testimonio personal e interpretación posterior se mantiene como convención fija a lo largo de todo el libro, repetida al cierre de cada capítulo donde corresponda.*
+
+
+================================================================
+ARCHIVO: historia/02_los_primeros_tropiezos.md
+================================================================
+
+# Capítulo 2 — Los primeros tropiezos
+
+El primer tropiezo real no fue un error que gritara. Fue uno que se quedó callado.
+
+A los pocos días de la instalación, Alejandro había agregado a ARIA la posibilidad de buscar en internet cuando la pregunta lo requería. Un casillero simple, en Gradio —la interfaz web que ARIA usaba desde el principio—, para activar o desactivar esa búsqueda. Se marcaba. Se veía marcado. Y sin embargo, del otro lado, el sistema seguía recibiendo la señal de que estaba desmarcado: una desprolijidad de esa versión de Gradio, que necesitaba un parámetro explícito —`interactive=True`— para que el valor del casillero viajara de verdad hasta el código, y que nadie había puesto todavía. Durante un tiempo, cada vez que alguien tildaba esa opción con la certeza de haberla activado, no estaba activando nada. La interfaz mentía con la mejor de las intenciones.
+
+Esa clase de error —el que aparenta funcionar mientras no funciona— iba a repetirse más de una vez en los meses siguientes, y con el tiempo se volvería casi una firma del proyecto: no el error ruidoso que corta todo y obliga a mirarlo, sino el que se esconde detrás de una respuesta que "suena bien" y por eso nadie va a revisar el registro real de lo que pasó por debajo. Ese patrón —confiar en la apariencia de que algo anda, en lugar de verificarlo— iba a costarle más de un dolor de cabeza a ARIA antes de que se convirtiera, muchos capítulos más adelante, en una regla de trabajo explícita.
+
+## Los que engañan
+
+El casillero de búsqueda web fue el primero de una familia de errores que este libro va a volver a encontrar, disfrazados de otras formas: los que no avisan.
+
+El más elaborado de esa familia pasó una noche de junio, con dos proyectos distintos conviviendo en la misma máquina de Alejandro. Uno era ARIA, corriendo en su entorno Linux. El otro era SabriBot, un proyecto de trading automatizado que Alejandro había empezado a construir por separado, en una carpeta propia de Windows, ya en pie para entonces. Los dos vivían, a propósito, en carpetas y entornos completamente separados —una regla que se había vuelto explícita precisamente para evitar que se pisaran—. Y aun así, con dos terminales abiertas al mismo tiempo, el trabajo terminó aplicándose, durante varios minutos, sobre la terminal equivocada: la de SabriBot, no la de ARIA.
+
+No pasó nada irreversible. Pero sí pasaron varios minutos de comandos y respuestas que no terminaban de encajar entre sí, esa sensación incómoda de estar hablándole a algo que no responde del todo como se espera, sin entender todavía por qué. Cuando se encontró la causa, no fue dramática: una variable de entorno con un espacio de más en su nombre, un detalle tan pequeño que el sistema, en lugar de avisar con un error visible, simplemente fallaba en silencio. El mismo patrón del casillero, otra vez: no un error que se anuncia, sino uno que deja que uno siga adelante convencido de que todo está bien.
+
+De ese episodio salieron dos costumbres que se mantendrían durante el resto del proyecto. La primera, más disciplinada: antes de asumir que el problema está en el valor de algo, revisar primero si el nombre está bien escrito. La segunda, más simple y quizás más efectiva: un color distinto y una etiqueta visible en la terminal de ARIA, para que de un vistazo —sin tener que pensarlo— quedara claro en qué proyecto se estaba parado. A veces la ingeniería más útil no es la que previene el error técnico, sino la que hace imposible no darse cuenta a tiempo.
+
+## Los que vienen de afuera
+
+No todos los tropiezos de estas primeras semanas fueron errores propios. Algunos llegaron de afuera, sin avisar. La librería que ARIA usaba para buscar en internet, por ejemplo, cambió de nombre en pleno desarrollo —el proyecto de código abierto del que dependía decidió renombrarse, y de un día para el otro el import que hasta ese momento funcionaba dejó de existir—. No fue un bug: fue el recordatorio, temprano, de que construir sobre herramientas de terceros significa aceptar que el terreno se puede mover debajo de los pies sin previo aviso.
+
+El micrófono físico de la máquina entra en esta misma categoría, aunque con una causa distinta: no un cambio externo repentino, sino una limitación conocida desde el principio de esa arquitectura. Windows y el sistema Linux que corría dentro de él, sobre WSL2, no lograban comunicarse de forma estable a través del hardware de audio, algo que ninguna instalación prolija podía solucionar del todo. La solución, cuando llegó, no fue técnicamente elegante: grabar el audio del lado de Windows y pasárselo a Linux por una carpeta compartida, como quien deja una nota debajo de la puerta en lugar de tocar el timbre. Fue la primera lección de que no todos los problemas se resuelven venciendo al obstáculo; algunos se resuelven rodeándolo.
+
+## Los que no se cierran del todo
+
+Hubo, también, una decisión de arquitectura que se declaró cerrada y no se quedó cerrada del todo. En junio, unas semanas después de la instalación, se evaluó formalmente si convenía abandonar WSL2 por una instalación de Ubuntu real, en modo dual boot, en la misma máquina. La promesa era tentadora: hasta un 10% más de rendimiento de la placa de video. El riesgo, en cambio, era concreto: mover meses de trabajo y de datos indexados a una configuración nueva, con la posibilidad real de perder algo en el camino. La decisión fue no hacerlo, y se registró en esos términos exactos: "decisión definitiva, no se revisa". Una frase tan categórica que casi pide, ella sola, ser puesta a prueba por el tiempo —aunque en los documentos disponibles no quede registro de que la idea haya vuelto a plantearse formalmente después de esa fecha. Queda, de todos modos, como un recordatorio útil: declarar algo cerrado con esas palabras no siempre alcanza para cerrarlo del todo en la práctica, y este libro va a encontrar más de un caso parecido.
+
+Algo parecido pasó con el hardware, un mes más tarde, en un intento por darle a ARIA una segunda placa de video en una máquina distinta. La idea no prosperó: la placa, movida a otra PC, simplemente no aparecía reconocida por el sistema, y el diagnóstico, paso por paso, terminó señalando no un problema de controladores sino algo más terrenal —una conexión física inestable, del tipo que se resuelve mejor no insistiendo—. La decisión final fue volver a la configuración original, simple, de una sola placa en la máquina de siempre. A veces la solución más aburrida es la correcta.
+
+## Detalles menores, honestidad completa
+
+No todo en estas semanas fue tropiezo, y no todo lo que parece un misterio lo es. Entre dos voces posibles para la síntesis de habla, Alejandro eligió una voz femenina en español por sobre la masculina que se había probado primero, y esa elección se mantuvo. Y el nombre elegido para "despertar" a ARIA por voz —el hotword que el sistema debía reconocer antes de escuchar cualquier otra cosa— tiene una historia más concreta de lo que parece a simple vista.
+
+Antes de llegar a "SOFIA" se probaron otras opciones más obvias: variantes de su propio nombre y apellido, frases como "ale, pausa". Ninguna funcionaba de forma confiable: el reconocimiento de voz de Google, que el sistema usaba para detectar la palabra de activación, tropezaba una y otra vez con esas combinaciones, en parte por el timbre agudo de su voz, que el motor interpretaba mal con cierta frecuencia. Ni siquiera el nombre del propio proyecto se salvó del problema: decir "ARIA, pausa" no funcionaba mejor, porque "aria" es también una palabra común del español —una pieza musical— y el reconocedor la interpretaba de maneras distintas según el resto de la frase. "SOFIA" fue, simplemente, la palabra que el reconocimiento identificaba bien, de forma consistente, prueba tras prueba. No fue una elección estética ni un capricho de nombre: fue una solución técnica a un problema de reconocimiento real. El nombre que despierta a ARIA, en ese sentido, no lo eligió Alejandro. Lo eligió el oído de la máquina.
+
+Ninguno de estos tropiezos, tomado por separado, fue grave. Ninguno tumbó el proyecto ni hizo perder datos. Pero puestos uno al lado del otro —el casillero que mentía, la variable con un espacio de más, la decisión declarada cerrada que no lo estaba del todo— empiezan a dibujar un patrón: un sistema que crecía rápido, con un solo par de manos detrás, sin todavía ningún hábito que obligara a verificar en lugar de confiar. Ese hábito iba a llegar. Pero no llegó por decisión anticipada. Llegó porque hubo que aprenderlo del modo más directo: perdiendo, primero, algo que no debería haberse perdido.
+
+---
+
+*Nota editorial: el detalle técnico de este capítulo proviene de los manuales de sesión y documentos de contexto correspondientes a las primeras semanas del proyecto (finales de mayo y junio de 2026); el episodio de las dos terminales confundidas y la decisión sobre Ubuntu dual boot están documentados en los manuales de la Sesión 33, y el resto de los hallazgos (casillero de búsqueda web, migración de hardware, elección de voz) corresponde a los manuales de las Sesiones 2 a 34, todos ellos verificados con cita textual completa. La historia real detrás del nombre "SOFIA" —los intentos previos fallidos ("ale pausa", "ubios", variantes del nombre de Alejandro, y hasta el propio "ARIA") y la razón técnica de la elección final— también está documentada, en un manual de sesión que agrupa varias sesiones tempranas del proyecto bajo un nombre de archivo que no lo deja evidente a primera vista. Una revisión anterior de este capítulo cometió dos errores que quedaron corregidos tras volver a la fuente: había marcado la historia de SOFIA como testimonio sin respaldo escrito (sí lo tiene), y había descrito el otro sistema de la anécdota de las terminales como un proyecto anterior a ARIA corriendo en un servidor en la nube, cuando en realidad es SabriBot, un proyecto de Alejandro construido en una carpeta separada de la misma máquina, en pie ya para la fecha de ese episodio. Esta distinción entre hecho documentado y testimonio personal —y la disposición a corregir cuando la fuente contradice lo ya escrito— se mantiene como convención fija a lo largo de todo el libro.*
+
+
+================================================================
+ARCHIVO: historia/03_aprender_a_trabajar_en_serio.md
+================================================================
+
+# Capítulo 3 — Aprender a trabajar en serio
+
+Hubo una segunda pérdida. Más chica que la primera, pero con el mismo sabor.
+
+Apenas unos días después de la instalación, el disco virtual donde vivía todo el sistema Linux de ARIA —el archivo único que contenía, puertas adentro, cada configuración y cada avance de esos primeros días— desapareció por completo. No se corrompió, no dio error al abrir: directamente dejó de existir. La causa más probable, según se reconstruyó después, fue una herramienta de limpieza de disco corrida la sesión anterior, de esas que prometen liberar espacio borrando archivos "innecesarios" sin preguntar demasiado. Para esa herramienta, el disco entero de Linux debajo de Windows era, técnicamente, un archivo grande y silencioso. Para ARIA, era todo.
+
+No hizo falta que se perdiera el trabajo del proyecto entero para que el estómago se apretara igual que la primera vez. Alejandro lo recuerda como un déjà vu incómodo, la misma sensación de la pérdida original con la que arranca este libro, solo que esta vez en miniatura —y esta vez con un lugar real de dónde tirar—. Ya existía, desde los primeros días del proyecto, una copia de seguridad automática que corría todas las noches. Pero esa rutina protegía la carpeta de código y configuración de ARIA, no el disco virtual completo de Linux en el que ese código vivía: dos cosas relacionadas, pero no la misma. Lo que terminó salvando el trabajo fue un respaldo manual, guardado apenas dos días antes, casi por costumbre más que por previsión.
+
+Ese susto —recuperable, pero real, y evitable si la protección hubiera sido más completa desde el principio— fue el que convirtió una buena costumbre en un hábito no negociable, y dejó una regla nueva y muy concreta: ninguna herramienta de limpieza de disco vuelve a correr cerca de la carpeta donde vive ese disco virtual. De ahí en adelante, la protección del trabajo de ARIA se sostuvo sobre tres patas al mismo tiempo, no una sola: historial de cambios guardado en control de versiones, un script dedicado a empaquetar y copiar el sistema completo —esta vez sí, incluyendo el disco virtual entero, no solo el código—, y la tarea automática nocturna, ahora tratada no como una formalidad sino como la última red antes de la caída.
+
+Ninguna de las tres patas, por separado, hubiera alcanzado. Pero juntas significaban que la próxima vez que algo desapareciera —y en un proyecto que crecía tan rápido, iba a volver a pasar, de otras formas— la pregunta ya no sería "¿lo tenemos guardado en algún lado?", sino simplemente "¿de cuál de las tres copias lo recupero más rápido?".
+
+## Confiar sin verificar
+
+El backup resuelve la pregunta de qué pasa si algo se rompe. No resuelve una pregunta distinta, y más incómoda: cómo saber si algo ya está roto sin que nadie se haya dado cuenta todavía.
+
+Esa segunda pregunta tardó más en tener una respuesta seria. Durante buena parte de las primeras semanas, la forma de validar que algo funcionaba era, en el fondo, bastante ingenua: se probaba una pregunta, la respuesta parecía razonable, y se daba por bueno. El problema de esa metodología —ya se vio en el capítulo anterior, con el casillero que mentía y la terminal equivocada— es que "parecer razonable" y "funcionar de verdad" no siempre son la misma cosa.
+
+El cambio real llegó en julio, cuando el proyecto ya llevaba más de un mes de crecimiento. El 5 de julio, antes de escribir una pieza de código nueva y particularmente sensible —el núcleo que decidía a qué parte del sistema debía ir cada pregunta del usuario, el que separaba las preguntas de trading de las de programación, de memoria o de voz—, se escribió primero un archivo de pruebas con veinte casos concretos, y recién después el código que esas pruebas debían validar. Invertir el orden habitual —probar antes de construir, no después— parece un detalle menor, pero cambia la relación con el propio trabajo: en lugar de preguntarse "¿funciona lo que hice?", uno empieza preguntándose "¿qué tiene que ser verdad para que esto funcione?". Y esa pieza en particular merecía el cuidado: si el enrutador fallaba, el sistema no se caía ni avisaba nada —simplemente respondía bien, pero en el lugar equivocado. El mismo error silencioso del capítulo anterior, ahora escondido en el corazón del sistema.
+
+Esa costumbre nueva destapó, apenas tres días después, un número incómodo. El 8 de julio se armó una prueba con casi novecientas preguntas reales —no inventadas para la ocasión, sino tomadas del uso real del sistema— y se midió cuántas de ellas terminaban, de forma automática, en la parte correcta del sistema sin intervención humana.
+
+El resultado fue **22%**. Menos de una de cada cuatro. Un sistema que, a simple vista y en el uso cotidiano, daba la sensación de funcionar razonablemente bien, estaba en realidad acertando poco más de una vez cada cinco intentos —y nadie lo había notado, porque las respuestas, aun llegando por el camino equivocado, solían sonar convincentes igual.
+
+Fue ese número, más que cualquier otra cosa, el que instaló definitivamente la herramienta que hasta entonces se usaba de forma casual: un framework de pruebas automatizadas real, con un umbral mínimo de cobertura exigido antes de dar cualquier cambio por terminado. Y fue también el punto de partida de una costumbre que este libro va a volver a mencionar más adelante: construir, con el tiempo, un conjunto fijo de preguntas de referencia contra el cual medir cada cambio nuevo, para que la pregunta "¿esto sigue funcionando?" tuviera siempre una respuesta medible, no una impresión.
+
+## Lo que el repositorio no vio
+
+Y sin embargo, con todo ese progreso, hubo un punto ciego que nadie detectó a tiempo, y que resultó ser, a su manera, tan revelador como el número del 22%.
+
+El proyecto tenía, desde bastante antes, un repositorio de control de versiones real, con historial real. Y aun así, en pleno julio, se descubrió que cuatro sesiones de trabajo completas habían pasado sin que se guardara un solo cambio ahí. No porque el repositorio no existiera, ni porque nadie supiera usarlo: simplemente, en el apuro de avanzar sesión tras sesión, verificar y confirmar los cambios en el control de versiones se había ido quedando afuera de la rutina, mientras los backups automáticos —esos sí, corriendo cada noche sin falta— daban una falsa sensación de que todo estaba cubierto.
+
+No lo estaba del todo. Un backup guarda una fotografía completa del sistema en un momento dado; el control de versiones guarda, además, la historia de cómo se llegó hasta ahí, paso por paso, con la posibilidad de volver atrás con precisión quirúrgica si algo sale mal. Son dos redes de seguridad distintas, y complementarias, no intercambiables. Cuando se notó el hueco, Alejandro lo marcó con firmeza: cosas así no podían volver a pasar. La respuesta no fue una disculpa ni un parche puntual, sino una regla nueva, simple y sin excepciones: verificar el estado del repositorio al cerrar cada sesión de trabajo, siempre, además del backup —nunca en lugar del backup.
+
+Es una regla que, contada así, suena casi trivial. Lo que la vuelve importante no es su complejidad —no tiene ninguna— sino el hecho de que costó un susto real llegar a ella. La disciplina de ingeniería de ARIA no nació de un manual leído de antemano. Nació, como casi todo en este proyecto, de tropezarse primero y de decidir, cada vez, no tropezar dos veces con la misma piedra.
+
+## Una costumbre, no un evento
+
+Vistas en conjunto, estas tres historias —el disco corrompido, el 22% que nadie había medido, las cuatro sesiones sin guardar— no cuentan la llegada de la disciplina como un antes y un después limpio. La cuentan como lo que fue de verdad: un aprendizaje repartido en varios golpes, cada uno más específico que el anterior, hasta que verificar dejó de ser una tarea extra y pasó a ser, simplemente, la forma en la que se trabajaba.
+
+Esa forma de trabajar —probar antes de confiar, guardar en más de un lugar, medir en lugar de suponer— iba a ser puesta a prueba, muy pronto, por un bug que no tenía nada de sutil ni de silencioso. Uno que, cada vez que alguien le preguntaba a ARIA por el precio del oro, contestaba con el precio del Bitcoin.
+
+---
+
+*Nota editorial: el episodio de la desaparición del disco virtual de WSL2 sí está documentado —a diferencia de lo que se pensó en una primera revisión de este capítulo— dentro de un manual de sesión más amplio que agrupa varias sesiones tempranas del proyecto bajo un nombre de archivo que no lo deja evidente a simple vista. Ese documento registra la causa probable (una herramienta de limpieza de disco corrida la sesión anterior), la fecha del respaldo que permitió recuperar todo (29 de mayo de 2026, dos días antes del incidente) y la regla de trabajo que se adoptó después. El resto del capítulo —la prueba de las 890 preguntas con 22% de acierto, la adopción formal de pruebas automatizadas, y el hallazgo de las cuatro sesiones sin control de versiones— también está documentado, en los manuales de sesión de julio de 2026. Esta distinción entre hecho documentado y testimonio personal, aplicada con cuidado y corregida cuando hizo falta, se mantiene como convención fija a lo largo de todo el libro.*
+
+
+================================================================
+ARCHIVO: historia/04_el_bug_del_precio_del_oro.md
+================================================================
+
+# Capítulo 4 — El bug del precio del oro
+
+La pregunta era simple: "¿cuál es el precio del oro?". La respuesta, invariablemente, hablaba de Bitcoin.
+
+No una vez. Cada vez. Sin importar cómo se formulara la pregunta, sin importar el canal —la interfaz web, Telegram, la línea de comandos—, ARIA contestaba con el precio de una criptomoneda que nadie había mencionado. No era una respuesta rara ni un error visible: era una respuesta completa, con número, con porcentaje de variación, con la seguridad de quien no duda. Solo que hablaba del metal equivocado.
+
+Ese tipo de error —uno que responde con total confianza, solo que a la pregunta que no era— ya era, para entonces, un patrón conocido en el proyecto. Lo nuevo, esta vez, fue lo que se encontró al ir a buscar la causa: no había un solo responsable. Había tres.
+
+## Tres capas queriendo lo mismo
+
+Cuando se abrió el código para entender qué pasaba, apareció algo que ningún bug anterior había mostrado con tanta claridad: tres piezas distintas del sistema, escritas en momentos distintos y con objetivos distintos, competían por la misma palabra —"precio"— sin saber que las otras dos existían.
+
+La primera pieza, apenas detectaba la palabra "precio" en cualquier pregunta, la mandaba directo a una búsqueda en internet, sin mirar nada más. La segunda —el enrutador que decidía a qué parte del sistema debía ir cada consulta— tenía a "precio" anotada como una de las palabras que activaban el dominio de trading, un dominio que, ante la duda, siempre asumía que se hablaba de Bitcoin, porque era el activo con el que se había construido originalmente. Y la tercera pieza, la única que sí sabía buscar específicamente el precio del oro, existía en el código, funcionaba bien cuando llegaba a ejecutarse... pero estaba escrita para correr después de las otras dos. Nunca llegaba a tiempo. Las primeras dos ya habían respondido —mal— antes de que la tercera tuviera oportunidad de hacerlo bien.
+
+Ninguna de las tres piezas estaba, en sí misma, mal escrita. El problema no vivía adentro de ninguna de ellas: vivía en el espacio entre las tres, en la falta de una que supiera de la existencia de las otras dos.
+
+La primera respuesta, como suele pasar, fue un parche de urgencia: una condición nueva, agregada por delante de todo lo demás, que reconocía palabras como "oro", "xau" o "gold" y las mandaba directo a la fuente correcta antes de que cualquier otra pieza del sistema tuviera chance de interceptarlas. Funcionaba. Pero todos, incluido quien lo escribió, sabían que era un remiendo: la próxima vez que alguien preguntara por plata, o por petróleo, o por cualquier otro activo que las piezas viejas no reconocieran, el mismo problema iba a volver a aparecer, con otro nombre.
+
+## Tres caminos, una decisión
+
+Frente a un parche que resuelve el síntoma sin tocar la causa, había que elegir cómo seguir. Se plantearon, con la frialdad de quien no quiere decidir por impulso, tres caminos posibles.
+
+El primero era simplemente seguir parchando: cada vez que apareciera un activo nuevo con el mismo problema, agregar una excepción más. Rápido, de bajo riesgo inmediato, pero con una deuda que crece sin límite visible, escondida hasta el próximo caso.
+
+El segundo era reordenar: hacer que la pieza que sí sabía responder bien —la tercera, la que llegaba tarde— pasara a ejecutarse primero, antes que las otras dos tuvieran oportunidad de opinar. Un cambio acotado, pero que necesitaba probarse con cuidado antes de confiar en él.
+
+El tercero era más ambicioso: rehacer de raíz todo el sistema de decisión, con un único lugar que ordenara con claridad qué pregunta va a dónde, sin piezas sueltas compitiendo entre sí. La solución más prolija, a largo plazo. También la de mayor riesgo, y la que más tiempo iba a llevar en un proyecto que todavía estaba creciendo rápido en otras direcciones.
+
+La decisión no se tomó en soledad. Se consultó a cinco colegas de inteligencia artificial, por separado, sin que uno viera lo que respondían los otros. El consenso fue fuerte a favor del segundo camino, con dos aportes que terminaron de darle forma a la solución final: no bastaba con reordenar, también había que limpiar las dos piezas viejas para que dejaran de competir por la palabra en primer lugar. Y le pusieron nombre al problema de fondo, uno que iba a quedar instalado en el vocabulario del proyecto de ahí en más: **route shadowing** —una regla genérica que, sin querer, tapa a una regla más específica que debería haber tenido prioridad.
+
+La solución implementada, entonces, tuvo tres partes: la pieza correcta pasó a ejecutarse primero; se le quitó a la segunda pieza la palabra genérica "precio" de su lista de disparadores, dejándole solo nombres concretos de criptomonedas; y se eliminó el atajo automático de búsqueda web que la primera pieza activaba con solo ver esa palabra. El parche de emergencia, ya innecesario, se retiró. Se probó con siete preguntas distintas —oro, Bitcoin, análisis técnico, memoria personal, la hora, noticias, un simple saludo— y las siete respondieron por el camino correcto. El caso se dio por cerrado.
+
+## El mismo fantasma, otra puerta
+
+Diez días después, una noche de julio, alguien decidió no confiar en que el arreglo estuviera realmente completo solo porque las pruebas anteriores habían salido bien. Antes de dar por cerrada una tanda distinta de mejoras, se mandó una serie de preguntas reales por Telegram —un canal que no se había usado para validar el fix original—. Entre ellas, otra vez, la misma de siempre: "¿cuál es el precio del oro?".
+
+Y otra vez, la respuesta fue Bitcoin.
+
+El primer instinto fue sospechar de la pieza que ya se había arreglado en junio: revisarla línea por línea, con cuidado, buscando algo que se hubiera pasado por alto. No había nada mal ahí. El arreglo de la Sesión 34 seguía intacto, funcionando exactamente como se lo había dejado.
+
+El problema, esta vez, estaba en otro lugar completamente distinto: una puerta de entrada rápida, pensada para responder preguntas simples de precio sin pasar por todo el sistema de decisión —un atajo construido con buena intención, para que esas consultas fueran instantáneas—, y que nadie había revisado cuando se corrigió el resto. Ese atajo interceptaba cualquier pregunta con la palabra "precio" antes de que llegara al núcleo del sistema, asumía que se trataba de una criptomoneda, y devolvía Bitcoin por defecto si no encontraba ninguna otra mencionada explícitamente. Exactamente el mismo síntoma que en junio. Exactamente la misma familia de error. Pero en una puerta distinta, construida después, que el arreglo original nunca tuvo la oportunidad de tocar porque todavía no existía cuando se hizo.
+
+La corrección, esta vez, fue puntual: agregarle a ese atajo la misma lista de excepciones —oro, plata, y sus nombres técnicos— que ya protegía al resto del sistema. Bastaron unas pocas líneas. Pero el hallazgo importaba más que la corrección en sí: confirmaba que el patrón de fondo —varias partes del sistema, cada una con su propia idea de qué hacer con una palabra clave, sin ponerse de acuerdo entre sí— no había desaparecido con el primer arreglo. Solo se había escondido en un lugar que todavía no se había mirado.
+
+Esa comprobación —que un mismo tipo de error puede reaparecer por una puerta distinta si la causa de fondo nunca se resuelve del todo— fue, más que el bug puntual del oro, lo que terminó de convencer a Alejandro de que el proyecto necesitaba, tarde o temprano, un único lugar central donde vivieran esas reglas de decisión, en vez de repartidas en media docena de archivos que nadie terminaba de mantener sincronizados entre sí. Ese trabajo, más ambicioso, iba a llegar pronto. Pero antes tenía que pasar algo más: ARIA tenía que aprender, en serio, a recordar.
+
+---
+
+*Nota editorial: los dos episodios de este capítulo están documentados con detalle técnico completo en los manuales de sesión del proyecto —el postmortem original en la Sesión 34 (23-24 de junio de 2026), con la consulta a cinco colegas de IA y el nombre "route shadowing", y la reaparición del mismo síntoma por una causa distinta en la Sesión 43 (4 de julio de 2026), encontrada mediante pruebas reales por Telegram. Ambos manuales forman parte del mismo documento compilado que reveló, tras una revisión más cuidadosa, el contenido de sesiones tempranas que en un primer borrador de este libro se habían dado por no disponibles.*
+
+
+================================================================
+ARCHIVO: historia/05_memoria_y_conocimiento.md
+================================================================
+
+# Capítulo 5 — Memoria y conocimiento
+
+Le preguntaron a ARIA dónde vivía Alejandro. La respuesta no fue una dirección. Fue todo.
+
+Los dieciséis datos guardados en la memoria personal del sistema, uno detrás de otro, sin filtro: el color favorito, el país de residencia, el horario de trabajo preferido, y mezclado en el medio, en algún lugar de esa lista, la respuesta real a la pregunta. Preguntarle a ARIA algo puntual era, en ese momento del proyecto, como abrir un cajón para buscar una llave y que se cayera encima todo lo que había adentro.
+
+No era la primera vez que el sistema de memoria fallaba por una desincronización de este tipo. Semanas antes, en junio, ya se había resuelto un problema relacionado pero distinto: el enrutador general reconocía preguntas como "dónde vivo" o "quién es mi familia" y las mandaba, correctamente, al módulo de memoria — pero ese módulo no tenía esas mismas frases anotadas en su propia lista interna, así que no sabía qué hacer con ellas y devolvía un genérico "no encontré información". Sincronizar las dos listas resolvió esa falla puntual. Lo que dejó sin resolver, sin que nadie lo notara todavía, fue algo distinto: el sistema ya reconocía la pregunta, pero no sabía responderla con precisión. Solo sabía volcar todo lo que tenía guardado.
+
+Ese problema —el volcado, no el reconocimiento— sí era nuevo. Y, en el sentido de que nadie terminaba de dar con la causa real, fue un síntoma que había sido diagnosticado dos veces y resuelto ninguna.
+
+## Un cajón que no sabía buscar, solo volcar
+
+La primera vez que se investigó el problema, la conclusión fue que no había problema: la palabra "donde vivo" estaba anotada, a propósito, como una de las frases que debían activar el volcado completo de la memoria personal. Visto así, no era un bug. Era el diseño tal como estaba escrito.
+
+La segunda vez que se investigó —apenas un día después, en medio de un trabajo mucho más grande que estaba en marcha: mover toda la memoria personal de un archivo de texto plano a una base de datos real— apareció una pista que la primera revisión no había alcanzado a ver completa: el problema no vivía solo en la parte del sistema que decidía a qué categoría pertenecía cada pregunta. Vivía, también, adentro del propio módulo de memoria, en una lista de frases reconocidas que nadie había revisado con el mismo cuidado.
+
+Y recién en un tercer intento se entendió el mecanismo real. Antes de que el sistema general de enrutamiento tuviera siquiera la oportunidad de decidir nada, había una pieza más rápida y más simple —un atajo, pensado para responder lo obvio sin dar vueltas— que interceptaba cualquier pregunta sobre memoria personal y la mandaba directo a una función que solo sabía hacer una cosa: mostrar todo. Daba igual que la pregunta fuera puntual. Ese atajo no distinguía preguntas específicas de pedidos genéricos; solo sabía volcar. Era, una vez más, la misma familia de fallas silenciosas que ya había aparecido con el casillero de búsqueda web que mentía y con las capas del sistema peleándose por la palabra "precio": algo actuaba antes de que el resto del sistema tuviera oportunidad de pensar, y por eso mismo costaba tanto encontrarlo a simple vista.
+
+La solución, cuando llegó, fue deliberadamente simple, y la decisión detrás de ella dice bastante sobre cómo se pensaba el proyecto para entonces: en lugar de resolver el problema con el modelo de lenguaje —pedirle que entendiera la pregunta y extrajera el dato correcto—, se optó por una búsqueda directa y determinística dentro de la base de datos, sin ningún paso intermedio que pudiera inventar o interpretar mal algo tan sensible como los datos personales de Alejandro. Una pregunta como "dónde vivo" pasó a mapearse, de forma explícita, a un término de búsqueda concreto; lo mismo con "cómo me llamo" o "quién es mi familia". Nada de adivinar. Buscar, y responder solo eso.
+
+## De un archivo de texto a algo que pudiera confiar en sí mismo
+
+Ese ajuste puntual fue apenas una pieza de un trabajo más grande que se bautizó, formalmente, como el arranque de una nueva etapa del proyecto: la memoria personal —hasta entonces un archivo de texto plano que se reescribía entero cada vez que había que agregar o cambiar un dato— pasó a vivir en una base de datos real, con las garantías que un archivo de texto nunca podía ofrecer del todo: que dos escrituras al mismo tiempo no se pisaran entre sí, que cada dato tuviera una identidad propia y estable, que se pudiera buscar sin tener que releer todo el archivo de punta a punta cada vez.
+
+El cambio se hizo con el cuidado que ya para entonces se había vuelto costumbre en el proyecto: un interruptor explícito para volver atrás sin tocar una línea de código si algo salía mal, y una verificación exacta —dato por dato, comparando el archivo viejo contra la base nueva— de que la migración no hubiera perdido ni cambiado nada en el camino. El cambio fue, de hecho, tan significativo que el proyecto pasó a llamarse internamente de una versión a la siguiente ese mismo día, un salto de numeración que reflejaba no una funcionalidad nueva y vistosa, sino algo menos visible y más importante: la base sobre la que todo lo demás se apoyaba dejaba de ser frágil.
+
+## Una respuesta que empezó a acordarse de la anterior
+
+En paralelo, y como parte de la misma búsqueda por hacer que ARIA respondiera mejor sin depender tanto, cada vez, de volver a pensar todo desde cero, nació otra pieza de memoria distinta: un sistema que empezó a guardar las respuestas ya elaboradas para preguntas parecidas, no para repetirlas de forma mecánica, sino para no pagar dos veces —en tiempo y en el costo real de consultar un modelo externo— por algo que ya se había resuelto bien antes. Ese sistema, que en el proyecto empezó a llamarse "Director Cognitivo", fue apenas un primer paso hacia una idea más ambiciosa: que ARIA no solo recordara datos sueltos sobre Alejandro, sino que también acumulara, con el tiempo, una memoria de sus propias respuestas —y aprendiera a confiar más en las que ya habían demostrado servir.
+
+## Lo que Alejandro decidió que ARIA debía recordar
+
+Hasta ese punto, buena parte de las reglas de memoria del proyecto se habían ido definiendo sobre la marcha, resolviendo cada bug a medida que aparecía. En julio, eso cambió de forma deliberada: antes de diseñar cualquier sistema nuevo de memoria más sofisticado, Alejandro se sentó a responder, con calma y en sus propias palabras, un cuestionario que preguntaba, en el fondo, una sola cosa formulada de catorce maneras distintas: ¿qué es lo que vale la pena que ARIA no olvide nunca, y qué es lo que no debería guardar jamás?
+
+Las respuestas dibujan un criterio bastante claro, y bastante alejado de la idea de una IA que archiva todo lo que escucha. Sobre lo que no debía guardarse nunca, Alejandro fue explícito: nada de charla casual, nada de estados de ánimo de un día puntual, nada de comentarios de pasada sobre gente ajena al proyecto. Su propia regla, dicha con esas palabras, resume bien la filosofía de fondo: *"si no lo volvería a consultar en seis meses para tomar una decisión sobre ARIA, no entra. La memoria es para operar el sistema, no para archivar mi vida."*
+
+Sobre lo que sí debía perdurar, la respuesta tampoco fue "todo lo importante" en abstracto, sino ejemplos concretos y con matices: preferencias que cambian con el tiempo, y que ARIA debía aprender a actualizar sin borrar el rastro de la versión anterior —para que nunca pudiera insistir en que "siempre" se prefirió algo que en realidad había cambiado hacía meses—; datos que conviven en paralelo sin pisarse, como el estilo de respuesta que Alejandro prefiere para trading (corto, directo, sin vueltas, porque en ese momento está leyendo el mercado) frente al que prefiere para programación (con todo el detalle técnico posible, porque un "sí, funciona" no sirve para depurar nada); y un puñado de categorías —las reglas de gestión de riesgo en trading, las decisiones de arquitectura ya validadas, los datos de seguridad del propio sistema— que debían quedar protegidas de cualquier limpieza automática, sin importar cuánto tiempo pasara sin mencionarlas.
+
+Ese cuestionario, más que cualquier línea de código, fue el que terminó de darle forma al sistema de memoria que ARIA tendría de ahí en adelante: no una base de datos que junta todo lo que puede, sino una que sabe, con criterio explícito, qué vale la pena conservar.
+
+## Una grieta que todavía no se había visto
+
+Con todo este trabajo hecho —la migración a una base sólida, el fix del volcado innecesario, el cuestionario que ordenó el criterio de fondo—, había una parte de la memoria de ARIA que nadie había mirado con el mismo cuidado: la que debía guardar, automáticamente, un resumen de cada conversación, para que el sistema pudiera responder después a algo tan simple como "¿de qué hablamos la semana pasada?".
+
+Esa pieza llevaba semanas construida, activa, aparentemente funcionando. Y sin embargo, casi no había guardado nada real desde el día en que se instaló. El fallo no se iba a descubrir todavía. Iba a hacer falta un mes más de trabajo en otras direcciones —y un capítulo dedicado a cómo ARIA fue sumando capacidades nuevas, módulo por módulo— antes de que alguien se topara con la magnitud real del problema, casi de casualidad, mientras construía algo distinto.
+
+---
+
+*Nota editorial: los hechos de este capítulo están documentados en los manuales de las Sesiones 56 a 61 (julio de 2026) para la migración a SQLite y el fix de "dónde vivo", y en el cuestionario de memoria y olvido que Alejandro completó personalmente el 24 de julio de 2026, citado aquí en sus propias palabras. La cifra de los dieciséis datos guardados en memoria está documentada textualmente en el manual de la Sesión 56. La sincronización previa de listas entre el enrutador y el módulo de memoria, mencionada como antecedente distinto del bug central del capítulo, corresponde a las Sesiones 33-35 (junio de 2026). La mención final sobre la memoria de conversaciones rota es un adelanto deliberado: el hallazgo completo, con sus cifras y su reparación, corresponde a un mes después y se cuenta con detalle en el Capítulo 8. Todos los datos fueron verificados contra el texto completo de los documentos fuente, no solo contra resúmenes previos, siguiendo la misma convención de transparencia de los capítulos anteriores.*
+
+
+================================================================
+ARCHIVO: historia/06_como_aria_aprendio_a_operar.md
+================================================================
+
+# Capítulo 6 — Cómo ARIA aprendió a operar
+
+Había un problema de fondo, y no tenía nada que ver con el mercado: ARIA no podía ver.
+
+No en sentido figurado. Se había probado, con un modelo de visión liviano corriendo en la propia máquina, si el sistema podía interpretar directamente un gráfico de trading —una zona marcada con Fibonacci, un bloque de órdenes, una vela envolvente—, y el resultado no daba para confiar en él. La calidad era demasiado básica para algo tan sensible como leer un mercado. Y sin embargo, buena parte de lo que había que enseñarle vivía justo ahí: en una imagen, no en una frase.
+
+## El profesor que no sabía que lo era
+
+El conocimiento que había que capturar no salía de un manual escrito para la ocasión. Salía de los cursos de Sabri Conessa, un trader que opera en vivo —una condición que Alejandro valora en particular, porque no todo el que enseña trading también lo practica con su propio dinero delante de una cámara—, con clases gratuitas y una forma de explicar que a Alejandro le resultó, desde el principio, clara y genuinamente valiosa. Sabri Conessa no participó del proyecto ARIA de ninguna forma: no lo conoce, no lo asesoró, no tiene ninguna relación con las decisiones técnicas ni con los resultados que Alejandro obtenga operando. Lo que sigue en este capítulo es la historia de cómo ese conocimiento, pensado para un alumno humano mirando una pantalla, terminó convertido en algo que un sistema también pudiera consultar.
+
+Vale la pena decirlo con la misma claridad antes de seguir: cualquier resultado de trading que Alejandro obtenga —bueno o malo— es responsabilidad exclusiva suya. No tiene relación con la enseñanza recibida, y menos todavía con lo que ARIA, un sistema propio y sin ningún tipo de aval externo, termine sugiriendo o calculando.
+
+## El puente
+
+La solución al problema de la visión no fue enseñarle a ARIA a ver. Fue no necesitar que viera.
+
+El método, una vez armado, se volvió rutina: Alejandro miraba una clase y, a medida que aparecía algo relevante en pantalla —un gráfico con niveles marcados, una operación real con su resultado, una configuración de herramienta que valía la pena guardar—, sacaba una captura. Sin ser demasiado selectivo; la instrucción de trabajo, escrita para no tener que repetirla cada vez, era clara al respecto: mejor pasarse de capturas que quedarse corto. Todas las capturas de una misma clase se juntaban en un único archivo comprimido, y ese archivo viajaba junto con la transcripción completa del audio hasta el escritorio de trabajo compartido con Claude.
+
+Ahí es donde pasaba la parte que de verdad resolvía el problema: Claude revisaba imagen por imagen, leía la transcripción entera, y combinaba las dos fuentes en un documento único —una "clase" con estructura fija: de dónde viene el concepto y por qué funciona, los pasos exactos para configurarlo en la plataforma, la regla central explicada con precisión, ejemplos reales de operaciones con sus números concretos de stop loss y take profit, las excepciones y matices que el propio Sabri mencionaba al enseñar, y un resumen final para consulta rápida. Nada que no estuviera respaldado por lo que aparecía en la captura o se decía en el audio; si algo no se veía con claridad en ninguna de las dos fuentes, la regla era omitirlo antes que completar con una suposición. Ese documento, ya en texto plano, era lo que finalmente se copiaba a la carpeta que ARIA sí podía indexar y consultar como cualquier otro libro de la biblioteca.
+
+Dicho así suena simple. Lo era, en el sentido de que no requería ninguna pieza de inteligencia artificial nueva ni sofisticada. Pero era, también, una forma bastante honesta de reconocer un límite real del sistema —ARIA no podía ver el gráfico— y resolverlo rodeándolo en lugar de fingir que no existía.
+
+## De una clase a veinticuatro
+
+La primera clase armada con este método fue sobre Fibonacci y la llamada zona OTE. Para principios de julio, apenas semanas después, ya eran veinticuatro: dos surgidas de este mismo proceso con videos de YouTube, y otras veintidós que reorganizaban el contenido más estructurado de los cursos de Principiantes e Intermedio de Sabri —desde lo más básico, qué es el trading y cómo se lee una orden, hasta conceptos de manejo de riesgo y psicología del trader ya en un nivel más avanzado. Cada clase, indexada, pasaba a estar disponible para cualquier pregunta futura sobre ese tema específico, con los mismos números y ejemplos reales que Sabri había mostrado, no una paráfrasis genérica de conocimiento de mercado en general.
+
+Con el tiempo, la biblioteca de trading siguió creciendo bastante más allá del contenido del curso: en agosto, una sola sesión de trabajo agregó ciento setenta y tres libros nuevos a la colección, llevando el total de todo el sistema —trading, programación, inteligencia artificial, y el resto de los dominios de ARIA— a casi mil archivos distintos indexados. Fue, también, la primera vez que se usó en serio una herramienta que ya existía pero nunca se había aprovechado con ese propósito: un conjunto fijo de preguntas de referencia, con la ruta de respuesta esperada para cada una, que permitía confirmar con evidencia objetiva —no con la simple impresión de que "ahora responde mejor"— que el contenido nuevo de verdad mejoraba lo que el sistema podía responder.
+
+## El camino que se probó y se dejó
+
+No todo lo que se intentó para que ARIA operara mejor terminó quedándose. Uno de esos intentos, en particular, vale la pena contarlo completo —con su resultado real, no solo con la parte que funcionó.
+
+En algún momento se probó entrenar un modelo propio, ajustado específicamente con el contenido del curso de Sabri: una técnica de ajuste liviano sobre un modelo base ya entrenado, en lugar de construir uno desde cero. El entrenamiento se hizo, se completó, y se validó con un centenar de preguntas de prueba. Funcionaba. Y sin embargo, semanas después, la decisión fue dejarlo de lado como camino a seguir: no porque hubiera fallado, sino porque el sistema de búsqueda directa en la biblioteca de documentos —el mismo mecanismo que ya usaba el resto de ARIA— cubría el mismo objetivo de un modo más simple y más fácil de mantener. Ajustar un modelo entero sirve para cambiar cómo responde, su tono, su estilo; no es la herramienta indicada para agregarle datos nuevos y concretos, que es exactamente lo que hacía falta acá. La decisión, una vez tomada, se sostuvo: en cada revisión posterior del sistema, ese camino siguió figurando, de forma explícita, como descartado con motivo, no como una tarea pendiente de retomar.
+
+Hubo, también, una pieza más pequeña que quedó a mitad de camino sin que nadie la forzara a completarse: un archivo de preguntas y respuestas ya armadas de antemano sobre el curso, pensado para responder de forma casi instantánea a las consultas más frecuentes. Con el tiempo, mientras la biblioteca de trading seguía creciendo con contenido nuevo, ese archivo quedó desactualizado —ya no reflejaba todo lo que ARIA sabía sobre el tema. Cuando se detectó el desfasaje, la decisión no fue parchearlo apurado: fue dejarlo así, deliberadamente, señalado como una deuda técnica conocida y postergada con criterio, mientras la atención del proyecto se dirigía a algo más importante que estaba por venir —separar, de una vez, el proyecto de ARIA del sistema de trading que operaba en paralelo. No toda mejora pendiente merece resolverse ya; a veces la decisión correcta es anotarla y seguir.
+
+---
+
+*Nota editorial: el flujo de trabajo del "puente" —capturas de pantalla más transcripción, procesadas para armar cada clase estructurada— está documentado en instructivos internos del propio proyecto, redactados para no tener que explicarlo de nuevo en cada sesión de trabajo. El número de veinticuatro clases indexadas corresponde a un registro de estado de principios de julio de 2026. La ampliación de ciento setenta y tres libros y el uso del conjunto de preguntas de referencia corresponden a una sesión de trabajo de mediados de agosto de 2026. El entrenamiento y posterior descarte del modelo ajustado están documentados en dos momentos distintos y coherentes entre sí: la validación original, y el registro repetido del descarte en sesiones muy posteriores. El nombre real de Sabri Conessa se usa en este capítulo en tono de agradecimiento, con su confirmación directa recibida antes de la publicación de este repositorio.*
+
+
+================================================================
+ARCHIVO: historia/07_los_bugs_que_ensenaron_mas.md
+================================================================
+
+# Capítulo 7 — Los bugs que enseñaron más
+
+Hay errores que se corrigen y se olvidan. Y hay errores que, al corregirlos, obligan a mirar más atrás de lo cómodo — no "¿qué línea está mal?", sino "¿qué decisión de diseño hizo posible que esto pasara, y dónde más puede estar pasando ahora mismo, sin que nadie lo haya notado todavía?".
+
+El más serio de esa segunda clase, en todo el proyecto, empezó con una pregunta inocente: "qué sabés de IA".
+
+## Un ejemplo que se escapó de su lugar
+
+A principios de julio, semanas después de que ARIA tuviera ya un dominio dedicado a Inteligencia Artificial —con su propia biblioteca curada de libros académicos—, alguien le preguntó eso mismo: qué sabía del tema. A veces, no siempre, la respuesta no tenía nada que ver con IA. Tenía nombre, tenía familia, tenía datos personales que no pintaban en absoluto en esa conversación.
+
+La causa, una vez encontrada, resultó casi ridícula en su simpleza y alarmante en sus implicancias: un manual viejo del propio proyecto —de semanas atrás, de una etapa muy anterior— estaba indexado en la base de conocimiento con la categoría "ia" puesta por error. Y ese manual, como cualquier documentación técnica honesta de este proyecto, incluía un ejemplo de cómo respondía ARIA a una pregunta de memoria personal. Un ejemplo pensado para explicar cómo funcionaba el sistema, no para ser citado como si fuera conocimiento sobre Inteligencia Artificial. Pero para la máquina, categoría es categoría: si algo dice "ia", se busca ahí cuando preguntan por ia. El ejemplo se colaba en las respuestas, ocupando el lugar de un libro de verdad.
+
+Se resolvió rápido, en dos frentes a la vez: se le enseñó al agente de IA a priorizar siempre la biblioteca curada por sobre el fondo general contaminado, y se recategorizaron a mano los más de mil trescientos fragmentos de ese manual viejo, sacándolos de "ia" y poniéndolos en una categoría que reflejara lo que realmente eran —documentación interna del proyecto, no material de consulta—.
+
+Un arreglo limpio. Pero un arreglo que resolvía el síntoma, no todavía la pregunta de fondo: ¿por qué fue posible que un documento terminara mal etiquetado en primer lugar, y cuántos más como ese podían estar esperando, sin descubrir, en una base de datos que para entonces ya superaba el millón de fragmentos?
+
+## La misma grieta, una semana después
+
+La respuesta no tardó en llegar, y no fue tranquilizadora. Días más tarde, al terminar de construir un dominio nuevo —esta vez para contenido de programación—, apareció el mismo síntoma en un lugar distinto: preguntas técnicas de programación que deberían haber usado la biblioteca recién curada seguían devolviendo contenido genérico, mezclado, sin ninguna relación real con lo preguntado. Incluyendo, otra vez, ecos del mismo manual viejo.
+
+Encontrar la causa esta vez costó más, porque las primeras hipótesis fallaron una detrás de otra: no era la caché de respuestas (se limpió dos veces, sin cambios), y una primera revisión del código pareció confirmar que el agente nuevo sí estaba bien registrado en el sistema —una conclusión que resultó ser un falso negativo, producto de haber probado una pieza aislada del sistema en vez del arranque completo real—. Recién con un registro de diagnóstico agregado a mano, sin ambigüedad posible, quedó confirmado: el agente de programación simplemente nunca se estaba llamando.
+
+La causa raíz, cuando por fin apareció, era pequeña y estructural a la vez: en algún lugar del núcleo del sistema sobrevivía una lista fija, escrita a mano, de "categorías válidas" —una herencia de una versión mucho más antigua del código—, y esa lista nunca se había actualizado para incluir el dominio de programación cuando se creó. El sistema reconocía bien de qué hablaba la pregunta. Pero esa lista vieja, sin que nadie lo supiera, la descartaba en silencio antes de llegar al agente correcto, dejándola caer al fondo general del sistema —sin ningún filtro de categoría que la protegiera—.
+
+Fue el mismo patrón exacto que ya había aparecido para IA, una semana antes, con un mecanismo distinto pero una raíz idéntica: **una regla de negocio importante, viviendo en un solo lugar hardcodeado del código, que nadie recuerda actualizar cuando el sistema crece.**
+
+## Una tercera grieta, encontrada antes de que doliera
+
+En medio de este mismo diagnóstico apareció una tercera pieza del mismo problema, esta vez descubierta antes de causar daño real, no después: el mecanismo que decide qué respuestas *no* deben guardarse en caché —pensado, en su momento, solo para proteger las respuestas de trading— tampoco cubría a los dominios nuevos de tecnología, IA y programación. Si una respuesta contaminada llegaba a generarse una sola vez, antes de corregir la causa de fondo, el sistema de caché la habría guardado y servido una y otra vez a cualquiera que preguntara lo mismo después —una respuesta incorrecta, convertida en la respuesta oficial del sistema, simplemente por haber sido la primera en llegar—.
+
+Se corrigió sumando los tres dominios de contenido curado a esa lista de exclusión, cerrando una puerta que, por suerte, todavía no se había usado para hacer daño.
+
+## Lo que dijo el colega que faltaba decir
+
+Con dos apariciones del mismo patrón en menos de diez días, un colega que revisó el trabajo de esas semanas hizo una observación incómoda pero necesaria, más allá de los dos bugs puntuales ya resueltos: con más de un millón de fragmentos ya indexados, y sin que nadie auditara ese volumen de forma sistemática, era razonable asumir que existían más documentos mal categorizados sin descubrir todavía. No una posibilidad remota — una probabilidad real, dado que ya habían aparecido dos casos del mismo origen sin buscarlos a propósito, solo porque alguien hizo la pregunta equivocada en el momento equivocado.
+
+Ese señalamiento se tomó en serio. Se construyó una herramienta de auditoría dedicada —de solo lectura, sin ninguna capacidad de modificar nada por sí sola— y se corrió sobre toda la base de conocimiento. El resultado inicial fue contundente: 1.335 posibles fugas de datos personales detectadas. Antes de asumir que todas eran reales, se investigó cada una: la enorme mayoría resultaron ser falsos positivos —coincidencias de nombres genéricos, como el nombre de una autora de un libro de Python que por casualidad se parecía a un patrón de búsqueda de nombre personal—, pero no todas. El manual viejo, el mismo de siempre, seguía teniendo miles de fragmentos sueltos en la colección de producción, más allá de la recategorización parcial de la primera vez.
+
+Esta vez no se lo recategorizó. Se lo retiró por completo: se identificaron con precisión los fragmentos exactos pertenecientes a ese archivo, se hizo un backup completo antes de tocar nada, y se borraron uno por uno por su identificador exacto —no por una búsqueda aproximada de texto, que podría haberse llevado por delante contenido real que no tenía nada que ver—. Una segunda corrida de la misma auditoría, después del retiro, confirmó el resultado: las fugas reales bajaron a cero. Lo que quedaba —1.199 resultados— se revisó fragmento por fragmento y se confirmó, esta vez sí con evidencia y no con una suposición tranquilizadora, que eran todos falsos positivos.
+
+## Lo que este capítulo deja, más allá del bug puntual
+
+Ninguno de los tres hallazgos individuales —el manual mal categorizado, la lista hardcodeada, la caché sin proteger— fue, por separado, un desastre. Cada uno se corrigió en su momento, con evidencia, sin apuro ni pánico. Lo que los vuelve un capítulo aparte, y no tres líneas más en una lista de errores, es lo que tienen en común puesto uno al lado del otro: los tres nacieron del mismo punto ciego —un sistema que crece agregando piezas nuevas (un dominio, un agente, una colección) sin que existiera, todavía, un mecanismo automático que verificara que todo lo demás también se hubiera actualizado en consecuencia—. Y los tres coincidieron, sin ser el mismo bug, en la superficie más sensible que un asistente personal puede tener: datos de la familia de alguien, filtrándose donde no correspondía, sin que nadie lo hubiera pedido ni lo hubiera notado hasta que alguien hizo la pregunta correcta.
+
+La respuesta de fondo no fue solo arreglar los tres síntomas. Fue construir, por primera vez, una herramienta que audita en vez de esperar a que un usuario tropiece con el problema —y dejar, como costumbre nueva, la idea de que en un sistema que sigue creciendo, "ya lo arreglamos" y "ya lo auditamos, en algún momento, por completo" no son la misma frase.
+
+---
+
+*Nota editorial: este capítulo está reconstruido con cita textual directa de los manuales de las Sesiones 44 a 47 (5 al 7 de julio de 2026) — específicamente la sección 3.4 de la Sesión 44 (el descubrimiento original en el dominio de IA), las secciones de errores y "Parte 4" de análisis de arquitectura de las Sesiones 45-46 (la reaparición en el dominio de programación y el hallazgo del colega externo), y las secciones 3.1 a 3.3 de la Sesión 47 (la auditoría formal, el retiro completo del documento y el cierre de las tres partes del hallazgo). Las cifras citadas (1.338 fragmentos recategorizados, 1.335 y luego 1.199 hallazgos de auditoría, 3.568 fragmentos retirados) provienen todas de las tablas de estado de esos mismos manuales. Siguiendo un acuerdo explícito sobre el alcance de este capítulo, no se menciona acá el episodio de pérdida de datos que precedió al nacimiento del proyecto (narrado, en la medida documentada, en el Capítulo 1) — es un hecho distinto, de otro momento del proyecto, sin relación con el mecanismo de este bug.*
+
+
+================================================================
+ARCHIVO: historia/11_epilogo.md
+================================================================
+
+# Capítulo 11 — Epílogo
+
+Este libro no termina con un sistema perfecto. Termina con un sistema que funciona, que se cayó muchas veces, que se levantó documentando cada caída, y que sigue, al día de este corte, en construcción. Vale la pena cerrar no con una foto final —para eso está `/meta/estado_actual.md`, que se actualiza mejor de lo que este capítulo jamás podría— sino con lo que queda cuando se junta todo lo recorrido: qué funcionó de verdad, qué no se repetiría, y qué le diría este proyecto a alguien que está por empezar el suyo.
+
+## Cinco reglas que funcionaron
+
+**Backup en tres capas, ninguna sola.** Git guarda el camino recorrido, pero no el vectorstore ni el disco completo. Un script de respaldo completo guarda una fotografía de todo, pero no el historial. Una tarea automática nocturna corre sin que nadie se acuerde de hacerlo a mano, pero solo cubre lo que alguien se acordó de incluirle. Las tres juntas cubren lo que ninguna cubre sola — y esta no es una regla teórica: nació de haber perdido el disco virtual completo una vez, y de que un backup manual hecho por costumbre, dos días antes de esa pérdida, fuera lo único que salvó meses de trabajo.
+
+**Verificar el estado del repositorio al cerrar cada sesión, siempre.** Un backup automático que corre bien de noche puede dar una falsa sensación de que todo está a salvo. Hubo una etapa del proyecto en que varias sesiones seguidas de trabajo real pasaron sin que se confirmara un solo cambio en git — el hábito se había ido perdiendo mientras los backups, esos sí, disimulaban el hueco. La regla que quedó, sin excepciones desde entonces: revisar `git status` al cerrar, siempre, además del backup, nunca en su lugar.
+
+**Probar en aislamiento antes de tocar producción.** Escribir primero un script de prueba en una carpeta separada, confirmar con evidencia real que funciona, y solo entonces tocar el sistema real. El enrutador central del proyecto, una de sus piezas más importantes, se construyó exactamente así: veinte casos de prueba escritos antes de que existiera una sola línea del código real que debían validar.
+
+**Medir en vez de suponer.** Un conjunto fijo de preguntas de referencia, con la respuesta esperada para cada una, corrido antes de dar cualquier mejora por cerrada — no la impresión subjetiva de que "ahora responde mejor", sino un número concreto, comparado contra el número de la vez anterior. Ese conjunto creció de veinte preguntas a setenta y ocho a lo largo del proyecto, y se volvió el paso obligatorio antes de cerrar cualquier cambio de contenido o de enrutamiento.
+
+**Declarar todos los errores, sin excepción, en cada sesión.** No solo los que se resolvieron bien. También los que costaron horas por una hipótesis equivocada, los que un colega externo tuvo que señalar porque nadie del proyecto los había visto, y los que quedaron pendientes sin resolver al cierre de una sesión. Esta bitácora existe, en gran parte, porque esa regla se sostuvo de principio a fin — sin ella, capítulos como el anterior no se podrían haber escrito con esta cita textual.
+
+## Cinco cosas que no se repetirían
+
+**Confiar en un formato heredado sin verificarlo primero.** Más de un bug de este proyecto —el más caro, un libro entero indexado casi vacío sin ningún error visible— nació de asumir que un formato de archivo que había funcionado para un caso anterior iba a funcionar igual para el siguiente, sin confirmarlo. La lección repetida, cada vez de forma más cara: verificar el nombre real de un archivo generado antes de asumir su formato, no reutilizar un valor que funcionó para un caso distinto.
+
+**Dejar una regla de negocio importante viviendo en un solo lugar hardcodeado.** Una lista fija de "categorías válidas", escrita a mano en un rincón del código y heredada de una versión mucho más antigua del sistema, causó el mismo tipo de bug dos veces en menos de diez días —primero en el dominio de IA, después en el de programación— simplemente porque nadie se acordaba de actualizarla cada vez que el sistema crecía con un dominio nuevo.
+
+**Auditar recién después de que algo se filtre, no antes.** La herramienta que finalmente permitió encontrar y confirmar que no quedaban más fugas de datos personales en la base de conocimiento se construyó reactivamente, después de que el problema ya hubiera aparecido dos veces por caminos distintos — no como una práctica preventiva desde el principio, con un sistema que para entonces ya superaba el millón de fragmentos indexados.
+
+**Fijar versiones exactas de dependencias sin una razón real para hacerlo.** Un intento temprano de instalar el entorno Python con versiones fijas de dos librerías centrales del proyecto generó un conflicto de dependencias irresoluble — resuelto, finalmente, dejando que el propio gestor de paquetes decidiera qué versiones convivían bien entre sí, en vez de forzar una combinación elegida a mano sin haberla probado.
+
+**Confiar en el límite de memoria por defecto de un entorno virtualizado.** WSL2 se queda, sin configuración explícita, con apenas la mitad de la RAM física de la máquina. Ese límite no configurado causó cuelgues reales de producción, varias veces, antes de que se diagnosticara la causa real y se corrigiera con un archivo de configuración explícito. Configurarlo desde el primer día habría evitado semanas de un problema que, durante un tiempo, se atribuyó erróneamente a otras causas.
+
+## Una guía breve para quien quiera empezar algo parecido
+
+No hace falta un plan completo el primer día — este proyecto no lo tuvo, y llegó igual mucho más lejos de lo que su primera sesión imaginaba. Lo que sí hace falta, si algo de este libro sirve como guía, es esto: empezar simple y dejar que el sistema crezca en la dirección que el uso real señale, no la que parezca más impresionante en el papel. Escribir un test antes de confiar en un cambio, no después. Guardar el trabajo en más de un lugar antes de que haga falta, no cuando ya sea tarde. Declarar los errores propios con la misma honestidad con la que se declaran los del código heredado. Y, sobre todo, verificar antes de asumir — con un comando de diagnóstico, con una cita textual, con una prueba aislada — porque casi todos los bugs más caros de este proyecto empezaron exactamente ahí: con algo que parecía obvio, y que nadie se tomó el trabajo de confirmar antes de construir encima.
+
+## Agradecimiento
+
+A Sabri Conessa, por sus cursos públicos de trading, la base sobre la que se construyó buena parte de lo que ARIA sabe sobre ese dominio — con su nombre real usado en este repositorio con su confirmación directa (ver [`/meta/agradecimientos.md`](../meta/agradecimientos.md) para el detalle completo).
+
+Y una mención aparte para Kimi, uno de los modelos consultados puntualmente a lo largo del proyecto para revisión cruzada: no fue un compañero de trabajo constante como Claude, pero su participación en la revisión del sistema de memoria fue real y repetida — revisó el diseño del módulo de preferencias, aportó la evaluación que dio origen a la unificación de umbrales del caché semántico, y aprobó, con condiciones, el diseño de consolidación automática de conocimiento del Módulo 6, incluyendo un ajuste concreto sobre cuánto contexto se le inyecta a cada respuesta.
+
+---
+
+*Nota editorial: las cinco reglas que funcionaron están tomadas, con cita textual, de [`/tecnico/metodologia_de_trabajo.md`](../tecnico/metodologia_de_trabajo.md). De las cinco cosas que no se repetirían, tres están tomadas de bugs documentados con cita textual completa en [`/tecnico/bugs_famosos.md`](bugs_famosos.md) y en los manuales de sesión correspondientes (el libro indexado casi vacío; la lista de categorías hardcodeada, narrada en el Capítulo 7; y el límite de memoria de WSL2, Sesión 86); la del conflicto de dependencias está tomada de [`/tecnico/instalacion.md`](../tecnico/instalacion.md); la de la auditoría reactiva es una síntesis directa del Capítulo 7 de este mismo libro. La guía breve de la sección anterior es una síntesis original de quien escribe este capítulo, no una cita de ningún manual — se presenta como tal, como conclusión razonada a partir de todo lo narrado en este libro, no como un hecho documentado aparte. El agradecimiento a Sabri Conessa y la mención de Kimi reproducen, de forma resumida, el contenido ya verificado de [`/meta/agradecimientos.md`](../meta/agradecimientos.md) — ver ese documento para la versión completa y su propia nota de verificación.*
