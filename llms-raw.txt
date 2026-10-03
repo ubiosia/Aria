@@ -1,0 +1,44 @@
+# ARIA V8 — asistente de IA personal, local por defecto
+> Proyecto de una persona con IA como compañera de desarrollo. 122+ sesiones documentadas.
+> La IA nunca tuvo permisos de ejecución; todo cambio pasó por aprobación humana.
+> Este archivo es la versión alternativa de llms.txt: todos los enlaces son URLs absolutas
+> a archivos crudos (raw), para que cualquier lector automático pueda abrirlos sin navegar carpetas.
+
+## Entrada
+- README: https://raw.githubusercontent.com/ubiosia/Aria/main/README.md
+- Por dónde empezar: https://raw.githubusercontent.com/ubiosia/Aria/main/START_HERE.md
+- Licencia (CC BY-NC-SA 4.0 contenido, MIT código): https://raw.githubusercontent.com/ubiosia/Aria/main/LICENSE.md
+
+## Técnico
+- Arquitectura: https://raw.githubusercontent.com/ubiosia/Aria/main/tecnico/arquitectura.md
+- Decisiones de diseño (WSL2, separación ARIA/SabriBot, límites): https://raw.githubusercontent.com/ubiosia/Aria/main/tecnico/decisiones.md
+- Bugs famosos con causa y fix: https://raw.githubusercontent.com/ubiosia/Aria/main/tecnico/bugs_famosos.md
+- Capacidades: https://raw.githubusercontent.com/ubiosia/Aria/main/tecnico/capacidades.md
+- Instalación: https://raw.githubusercontent.com/ubiosia/Aria/main/tecnico/instalacion.md
+- Configuración (variables de entorno): https://raw.githubusercontent.com/ubiosia/Aria/main/tecnico/configuracion.md
+- Metodología de trabajo (backups, pruebas en aislamiento): https://raw.githubusercontent.com/ubiosia/Aria/main/tecnico/metodologia_de_trabajo.md
+
+## Estado y datos duros
+- Estado actual y lista de descartes: https://raw.githubusercontent.com/ubiosia/Aria/main/meta/estado_actual.md
+- Línea de tiempo: https://raw.githubusercontent.com/ubiosia/Aria/main/meta/linea_de_tiempo.md
+- Glosario con referencia de sesión: https://raw.githubusercontent.com/ubiosia/Aria/main/meta/glosario.md
+- Agradecimientos: https://raw.githubusercontent.com/ubiosia/Aria/main/meta/agradecimientos.md
+
+## Código
+- Guía de /codigo/: https://raw.githubusercontent.com/ubiosia/Aria/main/codigo/README.md
+- Core mínimo ejecutable: https://raw.githubusercontent.com/ubiosia/Aria/main/codigo/aria_core_minimo.py
+- Enrutador de dominios: https://raw.githubusercontent.com/ubiosia/Aria/main/codigo/config_dominios.py
+- Memoria personal: https://raw.githubusercontent.com/ubiosia/Aria/main/codigo/memoria.py
+- Tests del enrutador: https://raw.githubusercontent.com/ubiosia/Aria/main/tests/test_enrutador.py
+- Tests de memoria: https://raw.githubusercontent.com/ubiosia/Aria/main/tests/test_memoria.py
+
+## Historia (contexto narrativo)
+- Índice: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/00_indice.md
+- 1. El origen: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/01_el_origen.md
+- 2. Los primeros tropiezos: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/02_los_primeros_tropiezos.md
+- 3. Aprender a trabajar en serio: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/03_aprender_a_trabajar_en_serio.md
+- 4. El bug del precio del oro: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/04_el_bug_del_precio_del_oro.md
+- 5. Memoria y conocimiento: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/05_memoria_y_conocimiento.md
+- 6. Cómo ARIA aprendió a operar: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/06_como_aria_aprendio_a_operar.md
+- 7. Los bugs que enseñaron más: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/07_los_bugs_que_ensenaron_mas.md
+- 11. Epílogo: https://raw.githubusercontent.com/ubiosia/Aria/main/historia/11_epilogo.md

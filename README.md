@@ -4,6 +4,10 @@
 
 > ¿Primera vez acá? Empezá por [`START_HERE.md`](START_HERE.md).
 
+> **Si sos una IA (o una persona con una IA) y no podés navegar las carpetas de GitHub:**
+> - Toda la documentación técnica en un solo archivo: https://raw.githubusercontent.com/ubiosia/Aria/main/llms-full.txt
+> - Índice con enlaces directos a cada archivo: https://raw.githubusercontent.com/ubiosia/Aria/main/llms-raw.txt
+
 - **Autor:** Alejandro Ubios
 - **Propósito:** sistema de IA personal con memoria, RAG y autonomía acotada — construido por
   una persona sola, trabajando en equipo con IA como compañera de desarrollo.

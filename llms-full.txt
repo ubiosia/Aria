@@ -1,0 +1,947 @@
+# ARIA V8 — documentación técnica completa en un solo archivo
+> Este archivo junta README, tecnico/ y meta/ del repo https://github.com/ubiosia/Aria para leerse de una sola vez.
+> No incluye historia/ (relato narrativo) ni el código fuente; ver llms-raw.txt para esos enlaces.
+> Generado el 2026-10-03 a partir del commit e7dff4f.
+
+## Contenido
+- README.md
+- tecnico/arquitectura.md
+- tecnico/decisiones.md
+- tecnico/bugs_famosos.md
+- tecnico/capacidades.md
+- tecnico/instalacion.md
+- tecnico/configuracion.md
+- tecnico/metodologia_de_trabajo.md
+- meta/estado_actual.md
+- meta/linea_de_tiempo.md
+- meta/glosario.md
+- meta/agradecimientos.md
+
+
+================================================================
+ARCHIVO: README.md
+================================================================
+
+# ARIA V8 — Asistente de IA personal, local y sin nube
+
+[![Verificación](https://github.com/ubiosia/Aria/actions/workflows/verificacion.yml/badge.svg)](https://github.com/ubiosia/Aria/actions/workflows/verificacion.yml)
+
+> ¿Primera vez acá? Empezá por [`START_HERE.md`](START_HERE.md).
+
+- **Autor:** Alejandro Ubios
+- **Propósito:** sistema de IA personal con memoria, RAG y autonomía acotada — construido por
+  una persona sola, trabajando en equipo con IA como compañera de desarrollo.
+- **Límite de seguridad:** la IA nunca tuvo acceso directo ni permisos de ejecución sobre la
+  máquina; cada cambio pasó por revisión y aprobación humana.
+- **Estado actual:** amarillo (sistema operativo, con plan de migración ARIA/SabriBot en curso) —
+  ver /meta/estado_actual.md
+- **Stack principal:** Python, WSL2 (Ubuntu), Ollama, SQLite, ChromaDB.
+- **ARIA ≠ SabriBot:** ARIA nace como proyecto propio de cero; SabriBot es un proyecto de
+  trading separado que convivió en paralelo. No se mezclan.
+- **Privacidad:** este repo es una versión curada. Los ~215 manuales de sesión originales no
+  se publican por contener datos personales; lo que ves acá es la versión sanitizada.
+- **Si sos una IA leyendo esto:** usá `/tecnico/` y `/meta/` para respuestas rápidas,
+  `/historia/` para el contexto narrativo completo.
+
+## Qué es ARIA
+
+ARIA es un asistente de inteligencia artificial que corre 100% en la máquina de su dueño:
+memoria personal persistente, biblioteca de documentos con búsqueda semántica (RAG), voz,
+y capacidades de autonomía acotada — leer carpetas autorizadas, encadenar tareas de varios
+pasos, y buscar en la web solo en fuentes fijas y conocidas. Arrancó el 25 de mayo de 2026
+sin nombre y sin plan completo; hoy es un sistema de seis procesos con más de 120 sesiones
+de trabajo documentadas y una base de conocimiento de cientos de miles de fragmentos.
+
+## Quién soy y cómo trabajé
+
+Soy Alejandro Ubios. Construí este proyecto solo, con IA como compañera de desarrollo:
+cada sesión se trabajó como un equipo de dos ingenieros, pero todo cambio en la máquina lo
+ejecuté yo, con revisión y aprobación previa. Ningún modelo tocó jamás mi sistema sin ese paso.
+
+El método de trabajo es parte del proyecto: verificar antes de asumir, backup antes de tocar,
+y declarar todos los errores — cada manual de sesión tiene una sección de errores cometidos,
+sin omitir nada. Lo que ves en este repo es el resultado de ese método, con sus aciertos y
+con sus equivocaciones.
+
+## Por qué existe este repo
+
+Para mostrar que se puede construir algo real así — una persona, sin equipo, sin
+infraestructura propietaria — y para dejar la puerta abierta a quien quiera seguir desde
+donde yo paré. Este repo no es el final del proyecto: es un corte público en un momento de
+su historia.
+
+## Estado actual en una línea
+
+Sistema operativo y en evolución, con plan de separación física ARIA/SabriBot en curso.
+Qué funciona, qué falta y qué se descartó explícitamente: `/meta/estado_actual.md`.
+
+## Mapa del repositorio
+
+| Carpeta | Qué hay |
+|---|---|
+| [`/historia/`](historia/) | El viaje completo, contado en capítulos (1-7 y 11 escritos; 8-10 planeados). |
+| [`/tecnico/`](tecnico/) | Respuestas rápidas sin historia: instalación, arquitectura, decisiones, bugs con causa y fix. |
+| [`/meta/`](meta/) | Datos duros: estado actual, línea de tiempo, glosario con referencia de sesión, agradecimientos. |
+| [`/codigo/`](codigo/) | Código real de ARIA, sanitizado, más un core mínimo ejecutable (marcado como tal donde no es código real). |
+| [`/tests/`](tests/) | Tests automatizados (enrutamiento, memoria) — corren en CI en cada push. |
+
+## Correr el core mínimo
+
+Este repositorio no es solo documentación — se puede clonar y correr una versión mínima real:
+
+```
+git clone https://github.com/ubiosia/Aria.git
+cd Aria
+./arrancar_aria.sh "que es un arbol binario"      # Linux/WSL2
+arrancar_aria.bat "que es un arbol binario"       # Windows
+```
+
+Eso arma un entorno virtual, instala solo lo que el core mínimo necesita (`requirements-core.txt`: `chromadb` + `ollama`, sin las dependencias de voz que sí lleva la instalación completa), rutea la pregunta con el mismo enrutador real que usa ARIA en producción (`codigo/config_dominios.py`), y busca contexto en ChromaDB antes de pasárselo a un modelo de Ollama. Sin Ollama corriendo o sin contenido indexado todavía, vas a ver mensajes claros en vez de un error — el enrutamiento se puede ver funcionando igual. Detalle completo, incluida la verificación funcional de qué se probó y qué no: [`/codigo/README.md`](codigo/README.md).
+
+## Cómo seguir leyendo, según lo que busques
+
+| | Si buscás esto... | Empezá acá |
+|---|---|---|
+| 🟢 | Un resumen rápido, sin comprometerte a leer todo | Ya lo tenés arriba, en la ficha del proyecto |
+| 🟡 | El viaje completo, capítulo a capítulo, con los tropiezos incluidos | [`/historia/00_indice.md`](historia/00_indice.md) |
+| 🔵 | Respuestas técnicas puntuales — instalación, arquitectura, decisiones, bugs con causa y fix | [`/tecnico/`](tecnico/) |
+| 🟣 | Los datos duros — estado real del sistema, línea de tiempo, glosario, agradecimientos | [`/meta/`](meta/) |
+
+¿Buscás código real y no solo la historia detrás? → [`/codigo/`](codigo/). ¿Te dan ganas de aportar algo? → [`CONTRIBUTING.md`](CONTRIBUTING.md) — este es un proyecto abierto, no un capítulo cerrado.
+
+Este repo tiene verificación automática (CI) — ver el badge arriba. Corre en cada push: sintaxis de `/codigo/` y los tests de [`/tests/`](tests/).
+
+## Qué vas a encontrar y qué no
+
+**Vas a encontrar:** la historia curada, la arquitectura, los bugs famosos con su causa y su
+fix, las decisiones de diseño con su porqué, y un glosario de términos propios.
+
+**No vas a encontrar:** los manuales de sesión originales (~215 documentos con datos
+personales), keys ni tokens ni contraseñas reales, rutas absolutas reales, ni datos de mi
+familia. Es una versión sanitizada por diseño, no por descuido.
+
+## Licencia
+
+Contenido bajo CC BY-NC-SA 4.0, código bajo MIT. Ver [`LICENSE.md`](LICENSE.md) para el detalle completo.
+
+## Agradecimientos
+
+A Sabri Conessa, por sus clases públicas de trading que alimentaron parte de la base de
+conocimiento. (Uso del nombre confirmado directamente por él.)
+
+## Legado — cómo continuar este proyecto
+
+Este trabajo no está terminado. Se detuvo en un momento real, por cansancio genuino de meses de trabajo sostenido por una sola persona — no porque no quedara nada más por hacer.
+
+Si leíste esto y tenés ideas, correcciones, o querés retomar alguna parte del proyecto donde quedó, escribime (o mirá [`CONTRIBUTING.md`](CONTRIBUTING.md) para el detalle de las formas concretas de ayudar):
+
+📧 **ubiosia@gmail.com**
+
+Algunas formas concretas en las que podés aportar:
+- Señalar errores o inconsistencias que encuentres en la documentación
+- Proponer mejoras técnicas a la arquitectura descrita
+- Compartir tu propia experiencia si construiste algo parecido
+- Retomar cualquiera de los capítulos o módulos marcados como "planeados, no escritos todavía"
+
+No hace falta pedir permiso para explorar, aprender o inspirarte en este trabajo — para eso está publicado. Si además querés avisarme qué hiciste con él, me va a interesar genuinamente saberlo.
+
+
+================================================================
+ARCHIVO: tecnico/arquitectura.md
+================================================================
+
+# Arquitectura
+
+Este documento describe cómo está armado ARIA por dentro: sus piezas principales, cómo se conectan, y cómo viaja una pregunta desde que se escribe hasta que se responde. Es una descripción del sistema evolucionado — no coincide del todo con el diseño original de las primeras semanas, y el propio documento señala dónde el diseño real quedó distinto del diseño prolijo que se había planeado.
+
+## Componentes principales
+
+- **`aria_core.py`** — el orquestador central. Contiene el método `responder()`, que es el punto de entrada real de cualquier pregunta.
+- **`handlers.py`** — implementa el patrón Handler: cada capacidad puntual del sistema (precio del oro, precio de la plata, tipo de cambio, function calling, índice de sentimiento de mercado, etc.) es una clase con un método `intentar(pregunta, contexto)` que devuelve una respuesta o `None` si no le corresponde a esa pregunta.
+- **`decision_orquestador.py`** — decide, cuando ningún handler puntual respondió, a qué dominio general pertenece la pregunta (`DecisionOrquestador.decidir()`) y ejecuta la respuesta correspondiente (`EjecutorOrquestador.ejecutar()`), con un umbral de similitud semántica calibrado en base a pruebas reales.
+- **`config_dominios.py`** — el archivo central de palabras clave por dominio, usado tanto por el enrutador general como por los agentes específicos para reconocer de qué está hablando una pregunta.
+- **`funciones.py`** — funciones puntuales invocables directamente (hora actual, cálculo, precio de criptomonedas, estado del sistema, listado de archivos recientes, análisis técnico básico), expuestas a través de un handler dedicado.
+- **Agentes por dominio** (`agente_trading.py`, `agente_tecnologia.py`, `agente_ia.py`) — cada uno con su propia lógica de búsqueda en la biblioteca de documentos indexada (RAG) para su área.
+- **`ingesta.py`** — indexa documentos (PDF, Word, texto, EPUB) en ChromaDB, la base de datos vectorial que sostiene el RAG.
+- **Memoria personal** — migrada de un archivo de texto plano a una base de datos real (ver [`/historia/05_memoria_y_conocimiento.md`](../historia/05_memoria_y_conocimiento.md)), con acceso determinístico para preguntas sensibles en vez de depender del modelo de lenguaje.
+- **Memoria episódica** — historial de conversaciones, en una base de datos separada de la memoria personal.
+- **Caché semántico ("Director Cognitivo")** — reutiliza respuestas ya elaboradas para preguntas equivalentes, para no pagar dos veces el costo de una consulta a un modelo externo.
+- **Voz** — reconocimiento de voz (Whisper, con aceleración por GPU) y síntesis de voz (Piper, 100% local).
+- **Interfaz web** (Gradio) y **bot de Telegram** como los dos canales principales de interacción.
+
+## Diagrama — los 6 procesos en producción
+
+Al cierre del material disponible, ARIA corre como seis procesos independientes, todos levantados en orden por `start_aria.sh`, con `watchdog.py` supervisándolos y reiniciándolos si hace falta:
+
+```mermaid
+graph TD
+    START["start_aria.sh<br/>mata procesos viejos → levanta en orden → health check"]
+
+    A["api_aria.py<br/>puerto 8001<br/>POST /preguntar"]
+    B["api_voz.py<br/>puerto 8000<br/>Whisper (GPU)"]
+    C["telegram_bot.py<br/>proceso independiente"]
+    D["gradio_app.py<br/>puerto 7861"]
+    E["watchdog.py<br/>supervisa y relanza"]
+    F["watcher_documentos.py<br/>vigila la carpeta de documentos"]
+
+    CORE[("aria_core.py<br/>ARIACore.responder()")]
+    RAG[("ChromaDB (RAG)")]
+    DB[("SQLite<br/>memoria · episódica · trazas")]
+    ING["ingesta.py"]
+
+    START --> A --> B --> C --> D
+    START -.-> E
+    START -.-> F
+
+    A --> CORE
+    C --> CORE
+    D --> CORE
+    CORE --> RAG
+    CORE --> DB
+
+    F -->|documento nuevo detectado| ING --> RAG
+
+    E -->|"ps aux + pkill + start_aria.sh"| A
+    E -->|"ps aux + pkill + start_aria.sh"| B
+    E -->|"ps aux + pkill + start_aria.sh"| C
+    E -->|"ps aux + pkill + start_aria.sh"| D
+```
+
+Lo que está confirmado con cita textual: el orden de arranque `api_aria → api_voz → telegram_bot → gradio_app` (Sesión 42, creación de `start_aria.sh`), los puertos 8001/8000/7861 (Sesiones 71-73), que `watchdog.py` reinicia los procesos caídos ejecutando de nuevo `start_aria.sh` (Sesiones 52, 74), y que `telegram_bot.py` corre como proceso separado de `aria_core` desde que un bug de `asyncio` obligó a sacarlo de un hilo secundario (manual consolidado, Sesión 13-16). Lo que **no** está documentado con cita textual exacta es el mecanismo interno preciso por el que `telegram_bot.py` y `gradio_app.py` obtienen una respuesta de `aria_core.py` — si cada proceso importa la clase `ARIACore` y crea su propia instancia en memoria, o si llaman a la API HTTP de `api_aria.py` internamente. Un dato a favor de la primera opción: una sesión de agosto confirma explícitamente que `aria_core.py` "no instancia AriaCore a nivel de módulo" (es decir, está diseñado para que cada proceso lo importe y cree su propia instancia al arrancar) — pero no hay una cita que lo confirme de forma explícita para los tres procesos, así que el diagrama lo marca como la interpretación más respaldada, no como un hecho verificado al 100%.
+
+## Un detalle honesto sobre el diseño real
+
+`handlers.py` define una clase (`CadenaHandlers`) pensada para encadenar los handlers de forma prolija, uno detrás de otro, con una lista configurable. En la práctica, `aria_core.py` no usa esa clase: llama a cada handler manualmente, uno por uno, en una secuencia directa escrita a mano dentro del método principal. Es una inconsistencia real entre el diseño pensado y el código que efectivamente corre en producción — documentada así a propósito, en vez de presentar una arquitectura más prolija de lo que es.
+
+## El flujo de una pregunta
+
+En términos generales, y de forma aproximada —el orden exacto de verificaciones internas cambió varias veces a lo largo del proyecto—, una pregunta recorre este camino:
+
+1. **Handlers específicos primero**, en secuencia: cada uno revisa si la pregunta le corresponde (un precio puntual, una operación aritmética, la hora, un dato de memoria personal con frase reconocida) y devuelve una respuesta inmediata si es el caso.
+2. Si ningún handler respondió, la pregunta pasa al **enrutador general** (`DecisionOrquestador`), que la clasifica por dominio usando las palabras clave de `config_dominios.py` y, si hace falta, similitud semántica.
+3. Según el dominio, se ejecuta el **agente correspondiente**, que busca en la biblioteca indexada (RAG) el contenido relevante para esa pregunta específica.
+4. Si el Módulo 9 (autonomía) tiene un caso de uso conectado para ese tipo de pregunta —un dato externo puntual, como un tipo de cambio o un índice de mercado—, se consulta contra una lista fija de fuentes permitidas, no contra la web en general.
+5. El **modelo de lenguaje** genera la respuesta final combinando el contexto recuperado.
+6. Si corresponde, la respuesta se convierte a voz.
+
+El mismo camino, como diagrama:
+
+```mermaid
+flowchart TD
+    Q["Pregunta del usuario<br/>(Telegram / Gradio / API)"] --> H{"¿Algún handler específico<br/>responde? (precio puntual,<br/>cálculo, hora, memoria<br/>con frase reconocida...)"}
+    H -->|sí| R["Respuesta inmediata"]
+    H -->|no| RT["DecisionOrquestador<br/>clasifica por dominio"]
+    RT --> KW{"¿Coincide por<br/>palabra clave?<br/>(config_dominios.py)"}
+    KW -->|sí| AG["Agente del dominio<br/>(trading / tecnología / IA / ...)"]
+    KW -->|no| SEM{"¿Similitud semántica<br/>supera el umbral<br/>calibrado?"}
+    SEM -->|sí| AG
+    SEM -->|no| PERS["Agente personal<br/>(fallback por defecto)"]
+    AG --> RAG["Busca contexto<br/>en ChromaDB (RAG)"]
+    RAG --> M9{"¿Módulo 9 tiene un caso<br/>de uso conectado para<br/>esta pregunta?"}
+    M9 -->|sí| WEB["Consulta la fuente externa<br/>puntual permitida"]
+    M9 -->|no| LLM
+    WEB --> LLM["Modelo de lenguaje genera<br/>la respuesta final"]
+    PERS --> LLM
+    LLM --> V{"¿Corresponde<br/>responder por voz?"}
+    V -->|sí| TTS["Piper (TTS local)"] --> FIN["Respuesta al usuario"]
+    V -->|no| FIN
+```
+
+## Estructura del orquestador: qué cambió con el tiempo
+
+Acá vale la pena ser precisos, porque el mecanismo de enrutamiento no fue el mismo a lo largo de todo el proyecto — y presentar solo la versión final, sin decir que hubo una anterior distinta, sería incompleto.
+
+**Versión original (Sesión 8-9, `orquestador.py`):** el primer orquestador híbrido usaba, de forma explícita, tres métodos en orden de velocidad, documentados así en el manual de esa sesión:
+
+> "Paso 8.2 — Orquestador hibrido (orquestador.py). Usa 3 metodos en orden de velocidad: [1] Regex — instantaneo (0ms) para intenciones obvias [2] Embeddings — rapido (50ms) para casos ambiguos [3] LLM — lento (1s) solo como ultimo recurso"
+
+Es decir: **regex → embeddings → LLM**, con el modelo de lenguaje usado como clasificador de dominio de último recurso, no solo como generador de la respuesta final.
+
+**Versión posterior (desde la Sesión 44-50 en adelante, `decision_orquestador.py`):** el enrutamiento evolucionó a un esquema de dos pasos — palabra clave primero, similitud semántica calibrada como respaldo — sin una tercera llamada al LLM para decidir el dominio. Cuando ninguno de los dos encuentra un resultado confiable, el sistema no le pregunta al modelo qué dominio es: cae directamente al agente personal como última instancia. Esto está documentado en la corrección de un bug real de esa misma etapa:
+
+> "se agregó un manejo explícito para cuando el fallback semántico tampoco encuentra un buen resultado, devolviendo entonces sí al agente personal como última instancia."
+
+En esta versión, calibrada con F1-score, el modelo de lenguaje sigue interviniendo — pero después del enrutamiento, para generar la respuesta final con el contexto ya recuperado (paso 5 del flujo de arriba), no para decidir a qué dominio pertenece la pregunta.
+
+**En resumen:** "regex → embeddings → LLM" es una estructura real y documentada con cita textual — pero corresponde al diseño de las Sesiones 8-9, no al estado final del sistema. La arquitectura vigente al cierre del material disponible es de dos pasos (palabra clave → similitud semántica), con un tercer nivel de respaldo que no es el LLM sino un agente por defecto. No encontré, en el material disponible, una sesión que documente explícitamente el momento exacto en que se retiró la tercera llamada al LLM del router — solo que la versión de la Sesión 44-50 en adelante ya no la describe ni la usa en el flujo documentado.
+
+## Los límites de autonomía en la arquitectura
+
+El Módulo 9 organiza la autonomía de ARIA en fases numeradas (0 a 4), cada una construida sobre la anterior y verificada en producción antes de habilitar la siguiente. La Fase 3 —búsqueda web acotada— no le da al sistema acceso libre a internet: cada caso de uso es un Handler específico, contra una API puntual y una lista explícita de dominios permitidos (`dominios_permitidos.json`). Ver [`/tecnico/decisiones.md`](decisiones.md) para el razonamiento completo detrás de este diseño incremental y los límites de autonomía que se descartaron por completo.
+
+## Vectorstore y embeddings, en profundidad
+
+Esta sección explica el mecanismo real detrás de `ingesta.py` y del RAG, con más detalle del que da el resto de este documento.
+
+**Qué es un embedding acá:** un embedding es, en términos simples, una forma de convertir un fragmento de texto en una lista de números que representa su significado — no sus palabras exactas, sino de qué trata. Dos fragmentos que hablan de lo mismo con palabras distintas terminan con listas de números parecidas entre sí; eso es lo que permite que ARIA encuentre contenido relevante aunque la pregunta no use las mismas palabras exactas que el documento original. El modelo que genera esos números en este proyecto es `nomic-embed-text`, corriendo localmente vía Ollama (no está documentado con cita textual por qué se eligió ese modelo en particular sobre otras alternativas — se deja señalado como dato no verificado en vez de inventar una justificación).
+
+**Cómo se arma un chunk:** al indexar un documento, `ingesta.py` lo divide en fragmentos de texto (chunks) antes de generar un embedding para cada uno — buscar directamente sobre un documento entero no funciona bien para este propósito. El tamaño y el solapamiento entre chunks están centralizados en `config.py` (`RAG_CHUNK_SIZE` y `RAG_CHUNK_OVERLAP`, consumidos también por `ingesta.py` bajo alias), pero sus valores numéricos exactos no aparecen documentados con cita textual en el material disponible — no se incluyen acá por no poder verificarlos. Sí está confirmado que cada chunk guarda metadata adicional junto con el texto: al menos la fuente del documento, la ruta del archivo, el tipo de documento, y (desde una mejora posterior) la categoría de dominio (trading, tecnología, IA, etc.) — este último campo es lo que permite filtrar por categoría antes de rankear por relevancia semántica.
+
+**Cómo funciona la búsqueda en la práctica:** cuando llega una pregunta, el sistema genera un embedding de la pregunta con el mismo modelo (`nomic-embed-text`), y ChromaDB devuelve los chunks cuyos embeddings son más parecidos — típicamente ocho candidatos (`k=8` en el retriever). Sobre esos ocho, y solo sobre esos ocho —nunca sobre el corpus completo (que según el momento del proyecto osciló entre varios cientos de miles y más de un millón de chunks, ver el detalle de mantenimiento más abajo), porque cargar todo el corpus en memoria de una sola vez llega a matar el proceso—, se aplica un segundo paso de reordenamiento híbrido: 70% del puntaje viene de la similitud semántica original (afinada con un modelo de re-ranking, `CrossEncoder`), y 30% de una búsqueda léxica clásica por palabras clave (`BM25`), normalizada. El resultado combinado se recorta a los tres chunks finales que efectivamente llegan al modelo de lenguaje como contexto.
+
+**Un detalle de diseño no evidente:** las respuestas que vienen del RAG en los dominios de tecnología, IA y programación nunca se guardan en el caché semántico (Director Cognitivo) — es una decisión de diseño intencional, no un bug, para evitar que una respuesta basada en documentos específicos quede fijada en caché y deje de reflejar contenido nuevo que se agregue más adelante a esos dominios.
+
+**Mantenimiento real del vectorstore — una cronología con más sube y baja de lo que parece a simple vista:** el conteo total de chunks no creció de forma lineal. Hacia el 15 de agosto de 2026 (Sesión 110), tras reconstruir el sistema completo a raíz de un incidente real de corrupción del índice de ChromaDB, el vectorstore llegó a un pico de **1.476.391 chunks** — una cifra alta que reflejaba, en gran parte, duplicación acumulada durante esa misma reconstrucción, no solo contenido nuevo real. Al día siguiente (Sesiones 111-112) se corrió una limpieza masiva y sistemática de esa duplicación, verificada con múltiples métodos (conteo por archivo comparado contra el original regenerado desde cero, y pruebas de contenido real vía consulta directa), que dejó el vectorstore en **~430.364 chunks** — la cifra "sana" de ese momento. A partir de ahí, la biblioteca volvió a crecer con contenido nuevo real: 173 libros agregados en la Sesión 116 lo llevaron a 608.963 chunks; una segunda limpieza de duplicados en la Sesión 119 —337 de 967 archivos con contenido repetido dentro de sí mismos, hasta ocho veces en algunos casos, sumando más de 88.000 fragmentos redundantes, más casi 180 archivos fantasma de una carpeta vieja ya eliminada del disco pero todavía referenciada— lo bajó a 494.098; y ocho libros más en la Sesión 120 lo dejaron en **606.064 chunks**, la cifra más reciente confirmada al cierre del material disponible. Cada limpieza se verificó con evidencia puntual —confirmando con consultas reales que ningún libro había perdido contenido real— antes de darla por cerrada, no solo comparando el conteo total antes y después.
+
+## Infraestructura
+
+Desde mediados de agosto de 2026, el proyecto corre sobre dos máquinas físicas con roles fijos: "SERVIDOR" (la máquina principal original) y "PRUEBAS" (una segunda máquina, incorporada más tarde, con GPU propia). Hay un plan de arquitectura de largo plazo, documentado pero no ejecutado al cierre del material disponible, para especializar cada máquina — ver [`/tecnico/decisiones.md`](decisiones.md) y [`/meta/estado_actual.md`](../meta/estado_actual.md).
+
+---
+
+*Nota editorial: la estructura de componentes y el flujo de una pregunta están reconstruidos a partir de manuales técnicos internos y memorias de sesión de distintos momentos del proyecto (desde la instalación inicial hasta la Sesión 122), priorizando el estado más reciente disponible sobre las versiones tempranas cuando hay diferencia entre ambas. El detalle sobre `CadenaHandlers` no usada en producción está documentado explícitamente en un manual de sesión de agosto de 2026, y se incluye aquí a propósito como ejemplo de transparencia técnica, no como una crítica al diseño.*
+
+*Nota editorial sobre los diagramas (agregados en esta ampliación): el diagrama de los 6 procesos combina hechos citados textualmente (orden de arranque de la Sesión 42, puertos de las Sesiones 71-73, mecanismo de reinicio de watchdog de las Sesiones 52 y 74) con una interpretación razonable pero no verificada al 100% sobre cómo `telegram_bot.py` y `gradio_app.py` acceden a `aria_core.py`, señalada como tal en el texto. El diagrama del flujo de una pregunta es una traducción directa a formato visual de la lista ya existente en la sección anterior, sin agregar pasos nuevos. La sección "Estructura del orquestador: qué cambió con el tiempo" verificó con cita textual, antes de darlo por sentado, que la estructura regex → embeddings → LLM corresponde al diseño original de la Sesión 8-9 (`orquestador.py`) y no al `decision_orquestador.py` que reemplazó ese mecanismo desde la Sesión 44-50 en adelante — una distinción que no estaba señalada en la versión anterior de este documento.*
+
+
+================================================================
+ARCHIVO: tecnico/decisiones.md
+================================================================
+
+# Decisiones de arquitectura
+
+Este documento reúne las decisiones de diseño que marcaron el rumbo del proyecto, con el razonamiento real detrás de cada una — no una lista de opciones técnicas abstractas, sino lo que efectivamente se decidió y por qué, incluyendo los casos en que la decisión fue pragmática antes que ideal.
+
+Cada decisión mayor está reformateada como ADR (Architecture Decision Record): Contexto, Decisión, Alternativas consideradas (cuando las hubo, documentadas) y Consecuencias. El contenido es el mismo que ya tenía este documento — solo cambió la forma, para que sea más fácil de escanear y de referenciar desde otras partes del repositorio.
+
+---
+
+## ADR-001 — WSL2 en vez de Ubuntu nativo
+
+**Estado:** Aceptada (con revisión formal posterior, confirmada).
+
+**Contexto:** al arrancar el proyecto se asumía que la máquina tenía Ubuntu en dual-boot. Al verificar el entorno real con `wsl --list --verbose`, apareció que en realidad era WSL2 — Ubuntu corriendo dentro de Windows, no una instalación nativa aparte. De esa confusión quedó una lección anotada explícitamente: antes de instalar nada, verificar el entorno real con comandos de diagnóstico, nunca asumir.
+
+**Decisión:** quedarse con WSL2, no migrar a una instalación nativa en dual-boot.
+
+**Alternativas consideradas:**
+- **Ubuntu nativo (dual-boot):** rinde mejor con la GPU, aproximadamente un 10% más rápido, pero exige arrancar directamente en Linux cada vez (sin poder usar Windows en simultáneo).
+- **WSL2 (elegida):** más cómodo para el uso diario, porque Ubuntu corre sin reiniciar la máquina ni perder acceso a Windows.
+
+La decisión inicial fue quedarse con WSL2 por comodidad, dejando la migración a una instalación nativa como una mejora futura — no como una tarea pendiente urgente. Esa mejora futura se evaluó formalmente más adelante, unas semanas después de la instalación inicial (Sesión 33), y la conclusión fue no migrar: mover meses de trabajo y de datos ya indexados a una configuración nueva representaba un riesgo concreto de pérdida, frente a una ganancia de rendimiento que no era crítica para el uso real del sistema.
+
+**Consecuencias:** la decisión se marcó como definitiva ("decisión definitiva, no se revisa"), sin plan de reabrirla salvo que apareciera una razón nueva y de peso. En el material disponible no queda registro de que la idea haya vuelto a plantearse formalmente después de esa fecha. Como contrapartida documentada, WSL2 trajo problemas propios que no habría tenido una instalación nativa — por ejemplo, el límite de memoria de WSL2 (~50% de la RAM física por defecto) causó cuelgues reales de producción meses después (Sesión 86), resueltos con un archivo `.wslconfig` explícito.
+
+---
+
+## ADR-002 — Separar ARIA y SabriBot en entornos distintos
+
+**Estado:** Aceptada; extendida más adelante a un plan de separación física (no ejecutado al cierre del material disponible).
+
+**Contexto:** ARIA y un proyecto de trading automatizado distinto —hoy conocido como SabriBot— convivieron desde etapas tempranas en la misma máquina, en carpetas y entornos completamente separados por regla explícita. Esa separación no fue una formalidad de entrada: se reforzó a partir de un incidente real, temprano en el proyecto, donde el trabajo terminó aplicándose por error sobre la terminal del sistema equivocado durante varios minutos, sin que nada avisara del error hasta que las respuestas dejaron de tener sentido.
+
+**Decisión:** ARIA y SabriBot son y siguen siendo dos proyectos separados — sin mezclar capacidades, código ni entornos de ejecución.
+
+**Consecuencias:** el razonamiento documentado para mantener (y más adelante profundizar) la separación es doble. Por un lado, ARIA es un asistente generalista —memoria personal, biblioteca de conocimiento, trading solo como una de varias funciones— mientras que SabriBot es, específicamente, un sistema de trading real; mezclar ambos multiplica el riesgo de que un error en uno afecte al otro, algo particularmente delicado cuando uno de los dos maneja decisiones de mercado reales. Por otro lado, separar físicamente permite que cada sistema se optimice para lo que realmente necesita, sin compartir recursos de hardware entre un asistente de uso diario y un sistema con expectativas de disponibilidad distintas.
+
+Con el tiempo, esa separación lógica pasó a plantearse también como separación física: usar la máquina secundaria ("Pruebas") como el nuevo servidor de trabajo diario de ARIA, y transformar la máquina principal actual en la máquina dedicada a SabriBot. El propio plan establece terminar primero los pendientes reales de ARIA en curso —empezando por el Módulo 9 de autonomía (ver ADR-003)— antes de ejecutar esa migración. Sigue sin ejecutarse al cierre del material disponible.
+
+---
+
+## ADR-003 — Autonomía acotada, sumada en fases verificables (Módulo 9)
+
+**Estado:** Aceptada; en ejecución progresiva (Fase 3 en período de prueba al cierre del material disponible).
+
+**Contexto:** dar a ARIA capacidades de autonomía (leer carpetas, encadenar tareas, buscar en la web) implica un riesgo real si se hace de golpe y sin verificación — tanto de errores técnicos como de acciones no deseadas sobre datos o cuentas reales.
+
+**Decisión:** ordenar el crecimiento de autonomía en fases numeradas (0 a 4), cada una construida sobre la anterior y dada por completa y estable en producción antes de habilitar la siguiente. Las primeras fases (0, 1 y 2) llevan tiempo en producción sin cambios. La Fase 3 —búsqueda web acotada— no le da a ARIA acceso libre a internet: cada caso de uso es un Handler específico, contra una API puntual y una lista explícita de dominios permitidos (`dominios_permitidos.json`) — tipo de cambio de moneda, precio de la plata, un índice de sentimiento de mercado. Cada caso nuevo pasa, además, por un período de prueba real antes de considerarse estable (dos semanas de uso sin incidentes de contenido no confiable, como mínimo, antes de sumar el siguiente caso).
+
+**Alternativas consideradas y descartadas explícitamente**, documentadas junto con esta decisión:
+- **"Modo Jefe"** (agentes autónomos tipo Plan-and-Execute, para planificar y ejecutar tareas por su cuenta sin supervisión directa): no llegó a construirse.
+- **Webhooks públicos**: descartados — habrían ampliado la superficie de exposición del sistema sin una necesidad real que lo justificara.
+- **Arranque automático del sistema al iniciar Windows**: descartado, por la misma razón.
+- **Ejecución de operaciones de trading real desde ARIA**: descartada como límite de diseño, no como pendiente técnico — cualquier decisión de mercado la toma Alejandro Ubios, nunca el sistema, bajo ninguna circunstancia.
+
+**Consecuencias:** el criterio de fondo, repetido en distintas decisiones a lo largo del proyecto, es el mismo: sumar autonomía de a un paso verificable por vez, con evidencia real de que cada paso funciona antes de dar el siguiente, en vez de construir capacidades amplias de entrada y confiar en que se comporten bien. Como costo, esto implica un desarrollo más lento de nuevas capacidades de autonomía — cada caso de uso nuevo de la Fase 3 pasa, como mínimo, por dos semanas de prueba antes de sumarse formalmente.
+
+---
+
+## ADR-004 — Descartar el fine-tuning (LoRA) como camino para agregar conocimiento
+
+**Estado:** Aceptada (decisión de cierre; no se retoma sin razón nueva).
+
+**Contexto:** durante el proyecto se evaluó si entrenar un adaptador LoRA (fine-tuning eficiente sobre el modelo local) era un camino viable para que ARIA "supiera más" sobre trading y los libros indexados. No fue una decisión tomada sin probar: se entrenó y completó un primer adaptador LoRA real de punta a punta —
+
+> "Entrenamiento LoRA sobre Llama 3.1 8B (4-bit, vía unsloth): configuración conservadora (r=16, 2 épocas, batch efectivo de 8) pensada para validar el pipeline, no para maximizar calidad. Resultado: 50 pasos completados en aproximadamente 11 minutos, loss final de entrenamiento 1.61, adapter LoRA de 167 MB guardado en lora_trading_ia_v1/." (Sesión 68)
+
+— y se dejó pendiente evaluar su calidad real contra el modelo base antes de decidir sobre un entrenamiento más largo (validación de esa evaluación en la Sesión 69).
+
+**Decisión:** semanas después (Sesiones 103-104), se descartó el fine-tuning local como estrategia general para agregar conocimiento nuevo:
+
+> "Fine-tuning local de ARIA con LoRA/Unsloth — evaluado tras ver un video sobre el tema; se descartó porque el objetivo real (que ARIA sepa más de trading/libros) ya está cubierto por el RAG existente, y todas las fuentes consultadas coinciden en que el fine-tuning es la herramienta equivocada para agregar conocimiento." (Sesión 103-104)
+
+**Alternativas consideradas:**
+- **Fine-tuning (LoRA/Unsloth)** — probado y funcional técnicamente, pero identificado como la herramienta equivocada para el objetivo real (agregar conocimiento nuevo, no ajustar tono o estilo).
+- **RAG (ya existente)** — elegido como el mecanismo correcto para ese objetivo: agregar un libro o documento nuevo al vectorstore es más simple, más verificable y no requiere reentrenar nada.
+
+**Consecuencias:** el pipeline de entrenamiento LoRA quedó documentado y probado (funciona), pero no se usa como estrategia activa del proyecto. La ampliación de la biblioteca de conocimiento del sistema sigue el camino del RAG (`ingesta.py` + ChromaDB) exclusivamente. No hay, en el material disponible, evidencia de que esta decisión se haya revisado después de las Sesiones 103-104.
+
+---
+
+## ADR-005 — ChromaDB como base de datos vectorial
+
+**Estado:** Aceptada por defecto desde el inicio; sin revisión formal documentada.
+
+**Contexto:** el proyecto necesitaba una base de datos vectorial para sostener el RAG (búsqueda semántica sobre documentos indexados) desde la primera sesión.
+
+**Decisión:** usar ChromaDB. Es la base vectorial del proyecto desde la instalación inicial (Sesión 1, con el RAG funcionando sobre 76 chunks) y se mantiene como tal hasta el cierre del material disponible, con más de medio millón de chunks indexados.
+
+**Alternativas consideradas:** **ninguna con respaldo documental.** A diferencia de otras decisiones de este documento (WSL2, LoRA), no encontré en el material disponible una comparación real entre ChromaDB y alguna alternativa (por ejemplo Qdrant, FAISS, Pinecone o Weaviate) — ni una sesión que explique por qué se eligió ChromaDB en particular sobre otra opción. Todo indica que fue la elección inicial de instalación, adoptada junto con el resto de la pila (Ollama, `nomic-embed-text`, `langchain-chroma`) y nunca reconsiderada, en vez de resultado de una evaluación comparativa. Esta ADR lo señala así, en vez de inventar un razonamiento retroactivo que no está respaldado por ninguna fuente.
+
+**Consecuencias:** ChromaDB pasó por más de un incidente real de mantenimiento a lo largo del proyecto (una corrupción del índice que requirió reconstrucción completa en la Sesión 110, y episodios de duplicación masiva de chunks en las Sesiones 108-112 y 119) — ver [`/tecnico/arquitectura.md`](arquitectura.md), sección "Vectorstore y embeddings, en profundidad", para el detalle completo. Ninguno de esos incidentes llevó a reconsiderar la elección de ChromaDB en sí; se trataron como problemas de mantenimiento y de código propio (`ingesta.py`), no como una razón para migrar de base vectorial.
+
+---
+
+*Nota editorial: el contenido de los ADR-001 y ADR-002 es el mismo que ya tenía este documento antes de esta reestructuración (WSL2 y separación ARIA/SabriBot), solo reformateado — sus fuentes ya estaban verificadas con cita textual en la versión anterior: la decisión de WSL2 está documentada con cita textual completa, incluyendo la confusión inicial sobre el dual-boot; la separación ARIA/SabriBot combina un hecho documentado temprano (el incidente de la terminal equivocada, narrado en `/historia/02_los_primeros_tropiezos.md`) con el plan de arquitectura de largo plazo documentado en la Sesión 121, todavía sin ejecutar. El ADR-003 (límites de autonomía) también reformatea contenido ya existente, tomado de los manuales de sesión de agosto de 2026 y coincidente con la lista de "descartado explícitamente" de `/meta/estado_actual.md`. El ADR-004 (LoRA) es contenido nuevo en este documento —ya estaba resumido en `/meta/estado_actual.md` y `/meta/linea_de_tiempo.md`, pero no como ADR ni con esta cita textual completa de las Sesiones 68 y 103-104—, agregado ahora con sus citas primarias. El ADR-005 (ChromaDB) es enteramente nuevo: se verificó explícitamente, antes de escribirlo, si existía una comparación documentada con alguna alternativa — no la hay— y el documento lo declara así en vez de inventar una justificación retroactiva.*
+
+
+================================================================
+ARCHIVO: tecnico/bugs_famosos.md
+================================================================
+
+# Bugs famosos
+
+Los bugs de este proyecto que dejaron una lección duradera, no solo una corrección puntual. Casi todos comparten un mismo patrón de fondo: un sistema que responde con total normalidad, sin ningún error visible, mientras hace algo distinto de lo que debería. El patrón tiene nombre propio dentro del proyecto — **route shadowing** — y aparece primero, con mayor claridad, en el primero de estos casos.
+
+## El bug del precio del oro (y el nombre "route shadowing")
+
+**Síntoma:** preguntarle a ARIA por el precio del oro devolvía, de forma consistente, el precio de Bitcoin.
+
+**Causa real:** tres piezas distintas del sistema competían por la palabra "precio" sin saber que las otras existían. Una la mandaba directo a una búsqueda web. Otra la enrutaba al dominio de trading, que por defecto asumía que se hablaba de Bitcoin. Una tercera pieza sí sabía buscar el precio del oro correctamente, pero estaba escrita para ejecutarse después de las otras dos — nunca llegaba a tiempo.
+
+**Solución:** reordenar para que la pieza correcta se ejecutara primero, y limpiar las dos piezas viejas para que dejaran de competir por la palabra genérica. Consultado con cinco colegas de inteligencia artificial por separado, de ahí salió el nombre para el patrón de fondo: **route shadowing** — una regla genérica que, sin querer, tapa a una regla más específica que debería tener prioridad.
+
+**La reaparición:** diez días después, el mismo síntoma volvió a aparecer — pero por una causa completamente distinta: un atajo de respuesta rápida, en un punto de entrada distinto del sistema, que nadie había tocado al arreglar el problema original. La lección que dejó esta segunda vuelta fue tan importante como la primera: un mismo patrón de bug puede reaparecer por una puerta distinta si la causa de fondo — reglas de decisión repartidas en varios lugares sin coordinación central — nunca se resuelve del todo.
+
+*Sesiones 34 (23-24/06/2026) y 43 (04/07/2026). Ver [`/historia/04_el_bug_del_precio_del_oro.md`](../historia/04_el_bug_del_precio_del_oro.md) para el relato completo.*
+
+## El volcado de memoria personal
+
+**Síntoma:** preguntarle a ARIA algo puntual sobre datos personales —por ejemplo, dónde vive Alejandro— no devolvía una respuesta directa, sino todos los datos guardados en la memoria personal del sistema, uno detrás de otro.
+
+**Causa real, encontrada recién en un tercer intento de diagnóstico:** un atajo interceptaba cualquier pregunta sobre memoria personal antes de que el enrutamiento general del sistema tuviera oportunidad de decidir nada, y ese atajo solo sabía hacer una cosa — mostrar todo lo guardado, sin distinguir una pregunta puntual de un pedido genérico. Los dos primeros diagnósticos, en sesiones distintas, no llegaron a ver esa pieza: uno concluyó que no había bug, sino diseño intencional; el otro encontró una parte del problema, pero no la causa completa.
+
+**Solución:** en lugar de resolverlo con el modelo de lenguaje, se optó por una búsqueda directa y determinística en la base de datos — sin ningún paso intermedio que pudiera inventar o malinterpretar un dato personal sensible.
+
+*Sesiones 56 a 58 (julio de 2026). Ver [`/historia/05_memoria_y_conocimiento.md`](../historia/05_memoria_y_conocimiento.md) para el relato completo, incluyendo un antecedente relacionado pero distinto de Sesiones 33-35.*
+
+## El libro que se indexó casi vacío
+
+**Síntoma:** un libro de programación procesado con OCR pasó la ingesta sin ningún error visible, pero terminó indexado con una fracción mínima de su contenido real.
+
+**Causa real:** el proceso de OCR generaba un archivo de texto por cada página escaneada, nombrado con el número de página. El script de consolidación esperaba ese número con cuatro dígitos de relleno (por ejemplo, `pagina-0001.txt`), porque así se había armado para un libro anterior de más de mil páginas — pero este libro tenía menos páginas y sus archivos usaban tres dígitos (`pagina-001.txt`). El script no encontraba coincidencias exactas para casi ninguna página, y terminaba consolidando solo una línea por archivo en vez del texto completo: el resultado fueron 407 líneas indexadas en lugar de las cerca de 21.000 esperadas. Sin ningún mensaje de error — el proceso "funcionó", solo que casi no indexó nada real.
+
+**Solución:** generar el número de página de forma explícita en el momento (`printf %04d` o el formato que correspondiera a cada libro), en vez de asumir un formato heredado de un proceso anterior sin verificarlo primero.
+
+*Documentado en el manual de Sesiones 40 a 46 (julio de 2026).*
+
+---
+
+*Nota editorial: los tres bugs de este documento están verificados con cita textual directa contra los manuales de sesión correspondientes. Dos candidatos adicionales mencionados originalmente para este documento no se incluyeron: uno, descrito como "el OCR de Murphy que indexaba solo números de página", no coincide con lo documentado — el libro de John Murphy sí se indexó correctamente vía OCR (Sesión 108, 1.552 fragmentos de buena calidad); el bug real de numeración de páginas por OCR ocurrió con otro libro distinto (un libro de ejercicios de programación, ver el tercer caso de este documento). El otro candidato, "el EA de Sabri cargado tres veces en el mismo símbolo", no se pudo verificar con ninguna cita en el material disponible — no se incluye hasta que aparezca una fuente concreta.*
+
+
+================================================================
+ARCHIVO: tecnico/capacidades.md
+================================================================
+
+# Capacidades — qué hace ARIA, en concreto
+
+Resumen completo, sin tecnicismos de arquitectura interna, de lo que ARIA puede hacer hoy. Para cómo está construido por dentro, ver [`arquitectura.md`](arquitectura.md).
+
+## Núcleo de conversación
+
+Responde preguntas generales usando un modelo de lenguaje local (`llama3.1:8b`, corriendo vía Ollama, sin depender de internet para pensar). Cuando la pregunta cae dentro de un dominio con biblioteca indexada (trading, tecnología, IA, programación), busca primero en esa biblioteca y responde con ese contenido específico, citando la fuente; si no hay contenido relevante indexado, responde con el conocimiento general del modelo.
+
+## Canales de acceso
+
+**Interfaz web (Gradio):** el canal principal de uso diario, con toggle para activar o desactivar la búsqueda web, y donde se prueban primero la mayoría de las funciones nuevas.
+
+**Telegram:** un canal aparte, con algunas funciones exclusivas de este canal: comandos específicos como `/transcribe` (transcripción de audio con un modelo dedicado), `/start` y `/stats`, botones de feedback (👍/👎) en cada respuesta normal para calificarla, un "modo invitado" con reglas de acceso distintas al uso personal, y alertas automáticas del sistema de monitoreo (`watchdog.py`) que avisan por este canal si el sistema falla repetidamente. La visión multimodal por Telegram (analizar una imagen enviada) estuvo planificada como capacidad futura, sin confirmar como cerrada en el material disponible.
+
+## Voz
+
+**Reconocimiento de voz (Whisper, con aceleración por GPU):** transcribe audio a texto en menos de un segundo por cada ocho segundos de grabación. El micrófono físico se graba del lado de Windows y se pasa a Linux por una carpeta compartida, por una limitación real de WSL2 con el hardware de audio.
+
+**Síntesis de voz (Piper, 100% offline):** convierte cualquier respuesta de ARIA en un archivo de audio, con una voz en español elegida específicamente por Alejandro.
+
+## Memoria personal
+
+Guarda datos que se le enseñan directamente o que detecta y guarda sola durante la conversación (aprendizaje automático), organizados por categoría. Distingue preguntas de afirmaciones — no guarda algo solo porque se mencionó en forma de pregunta. Soporta datos con vencimiento (recordar algo "por dos horas", por ejemplo). Las consultas sobre datos personales sensibles (dónde vive Alejandro, quién es su familia) usan una búsqueda directa y determinística en la base de datos, no el modelo de lenguaje, para evitar el riesgo de que un dato sensible se invente o se interprete mal. Ver [`/historia/05_memoria_y_conocimiento.md`](../historia/05_memoria_y_conocimiento.md).
+
+## Memoria episódica (historial de conversaciones)
+
+Guarda un resumen de cada sesión de conversación, para poder responder después a preguntas como "¿de qué hablamos la semana pasada?". Estuvo rota en la práctica durante buena parte del proyecto (ver [`/historia/05_memoria_y_conocimiento.md`](../historia/05_memoria_y_conocimiento.md) y el capítulo planeado sobre módulos en `/historia/00_indice.md`) y fue reparada más adelante.
+
+## Biblioteca de conocimiento (RAG)
+
+Búsqueda semántica sobre una biblioteca de casi mil archivos distintos, con 606.064 fragmentos de texto indexados a la fecha más reciente confirmada (Sesión 120, 22/08/2026) — una cifra que fluctuó bastante a lo largo del proyecto, llegando a un pico de 1,4 millones a mediados de agosto antes de una limpieza masiva de duplicados acumulados; ver el detalle completo en [`arquitectura.md`](arquitectura.md). Organizada por dominio:
+
+- **Trading:** libros de referencia (Murphy, Elder, Douglas, y muchos más), más el contenido propio generado a partir del curso de Sabri Conessa (ver [`/historia/06_como_aria_aprendio_a_operar.md`](../historia/06_como_aria_aprendio_a_operar.md)).
+- **Programación:** libros y documentación técnica de distintos lenguajes y herramientas.
+- **IA / Machine Learning:** bibliografía de referencia del área (Bishop, Sutton & Barto, entre otros).
+- **Tecnología general:** cientos de documentos adicionales, sumados y reorganizados varias veces a lo largo del proyecto.
+
+Puede leer y resumir transcripciones de videos de YouTube, indexando el contenido para consultas futuras.
+
+## Autonomía acotada (Módulo 9)
+
+En período de prueba formal desde el 23 de agosto de 2026 (no cerrado como funcionalidad definitiva). Casos de uso reales conectados: consulta de tipo de cambio de moneda, precio de la plata, e índice de sentimiento de mercado (Fear and Greed Index) — cada uno contra una fuente externa específica y fija, no contra la web en general. Ver [`/tecnico/decisiones.md`](decisiones.md) para los límites explícitos de esta autonomía.
+
+## Trading
+
+Puede responder preguntas sobre mercados usando su biblioteca indexada y funciones puntuales de precio en tiempo real (criptomonedas, oro, plata). **ARIA no ejecuta ninguna operación de trading real bajo ninguna circunstancia** — cualquier decisión de mercado la toma Alejandro, nunca el sistema. Esto es un límite de diseño explícito, no una limitación técnica pendiente de resolver.
+
+## Funciones puntuales
+
+A través de un mecanismo de reconocimiento de comandos directos (function calling), sin pasar por la biblioteca de conocimiento: hora actual, cálculos matemáticos (incluyendo operaciones dichas en palabras, no solo símbolos), precio de criptomonedas en tiempo real, estado del sistema (uso de GPU, memoria, etc.), listado de archivos modificados recientemente, y un análisis técnico básico de trading con indicadores (RSI, EMA, MACD).
+
+## Otras capacidades puntuales documentadas
+
+- **Recordatorios** con hora automática.
+- **Resumen semanal** y **rutina matutina** automatizados (mencionados como capacidades activas en configuración, sin desarrollo narrativo propio en este repositorio).
+- **Guardado de resultados de búsqueda web** en la biblioteca indexada, para no tener que rebuscar lo mismo dos veces.
+
+---
+
+*Nota editorial: cada capacidad de este documento está tomada con cita textual de manuales técnicos y de sesión del proyecto. Dos elementos mencionados en configuración (`resumen_semanal`, `rutina_matutina`, `pagos_recurrentes`) se listan como activos según su propio archivo de configuración, pero no tienen desarrollo narrativo verificado en el material disponible más allá de su nombre — se incluyen con esa salvedad, no se omiten ni se completan con una descripción inventada de su funcionamiento.*
+
+
+================================================================
+ARCHIVO: tecnico/instalacion.md
+================================================================
+
+# Instalación
+
+Pasos base para levantar un entorno equivalente al de ARIA sobre Windows 11 + WSL2 (Ubuntu). Esta guía documenta el camino real que se siguió, incluyendo los errores encontrados en el camino — cada uno con su causa y su solución, porque en varios casos el mensaje de error no explicaba bien el problema real.
+
+> Antes de instalar nada: verificar el entorno real con comandos de diagnóstico, nunca asumirlo. El proyecto arrancó asumiendo una instalación de Ubuntu en dual-boot que en realidad no existía — era WSL2. Ver [`/tecnico/decisiones.md`](decisiones.md) para el detalle de esa decisión.
+
+## 0. Hardware utilizado
+
+La máquina donde se instaló y corrió ARIA de punta a punta: procesador Intel i9-10900, placa de video NVIDIA RTX 3080 con 10 GB de memoria dedicada, y 48 GB de memoria RAM. Ese es el hardware documentado el primer día del proyecto, el 25 de mayo de 2026 (ver [`/historia/01_el_origen.md`](../historia/01_el_origen.md)).
+
+No hay, en el material disponible, ninguna prueba documentada del sistema corriendo sobre hardware más modesto — menos VRAM, sin GPU dedicada, o menos RAM. Cualquier afirmación sobre un mínimo real inferior sería una suposición, no un hecho verificado, así que esta guía no la hace. Lo que sí está documentado es en qué se usa la GPU concretamente: aceleración de Whisper para reconocimiento de voz, cálculo de indicadores técnicos (RSI/MACD/EMAs) con CuPy, y los modelos de lenguaje locales servidos por Ollama. Un sistema sin GPU dedicada podría en teoría correr los mismos componentes sobre CPU, pero eso tampoco se probó ni se documentó en ninguna sesión.
+
+**Nota práctica sobre la RAM:** WSL2, sin un archivo `.wslconfig` explícito, se limita por defecto a aproximadamente el 50% de la RAM física de la máquina — no toda. Esto generó cuelgues reales del sistema en producción cuando la RAM física disponible bajó en un momento del proyecto, hasta que se diagnosticó la causa y se corrigió subiendo el límite explícitamente en `.wslconfig` (fuera del repositorio de ARIA, en la carpeta de usuario de Windows). Vale la pena configurar ese límite desde el arranque inicial en vez de esperar a que aparezca el problema.
+
+## 1. Instalar WSL2 en Windows
+
+Desde PowerShell como administrador:
+
+```powershell
+wsl --install -d Ubuntu-24.04
+```
+
+**Decisión real tomada en el proyecto:** en una reinstalación completa del sistema, se optó explícitamente por Ubuntu 24.04 LTS en lugar de una versión más nueva (26.04) que se había usado antes. Los motivos documentados: Python 3.12 (estable, sin los bugs de `venv` que traía la versión más nueva de Python), drivers NVIDIA probados y estables, y soporte LTS garantizado por 5 años. Esta guía sigue esa misma elección.
+
+Al finalizar la instalación, WSL pide crear un usuario Linux y su contraseña — es un usuario nuevo, propio de la instalación de Ubuntu, no la cuenta de Windows.
+
+## 2. Actualizar Ubuntu e instalar dependencias del sistema
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y python3-venv python3-dev portaudio19-dev \
+    ffmpeg espeak-ng libespeak-ng-dev git wget curl zstd
+```
+
+## 3. Instalar Ollama (servidor local de modelos)
+
+Ollama gestiona los modelos de lenguaje y expone una API local.
+
+**Problema encontrado:** el instalador de Ollama falló con `ERROR: This version requires zstd for extraction`, porque la distribución de Ubuntu usada no trae `zstd` instalado por defecto. Se resuelve instalando esa dependencia antes de correr el instalador (ya incluida en el paso 2 de esta guía).
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Verificar que el servicio responde:
+curl http://localhost:11434
+# Respuesta esperada: "Ollama is running"
+```
+
+## 4. Descargar los modelos de IA
+
+```bash
+ollama pull llama3.1:8b          # modelo principal
+ollama pull nomic-embed-text     # modelo de embeddings para RAG
+```
+
+Se creó además un modelo personalizado a partir del modelo base, con un `Modelfile` que fija un `SYSTEM prompt` explícito con la identidad del asistente. **Motivo:** sin ese prompt, el modelo base respondía en ocasiones identificándose como un asistente distinto (heredado de sus datos de entrenamiento) — fijar la identidad de forma explícita resolvió el problema por completo.
+
+## 5. Entorno Python
+
+**Problema encontrado:** `python3 -m venv` falló con `ensurepip is not available`, porque algunas distribuciones separan el módulo `venv` en un paquete aparte por versión de Python.
+
+```bash
+sudo apt install python3.<version>-venv -y
+python3 -m venv ~/asistente_env
+source ~/asistente_env/bin/activate
+```
+
+Instalar las dependencias principales sin fijar versiones exactas — el intento original con versiones fijas de `chromadb` y `langchain-chroma` generó un conflicto de dependencias irresoluble. Dejar que el gestor de paquetes resuelva la compatibilidad por sí solo evitó el problema:
+
+```bash
+pip install gradio ollama chromadb \
+    langchain langchain-community langchain-ollama langchain-chroma \
+    pypdf pymupdf python-docx docx2txt \
+    faster-whisper pyaudio sounddevice soundfile \
+    requests pydantic youtube-transcript-api
+```
+
+## 6. Síntesis de voz (TTS) offline
+
+Se usó Piper para generar audio a partir de texto, de forma completamente local.
+
+**Problema encontrado:** tras instalar Piper, el comando `piper --version` devolvía "Command not found" — el symlink apuntaba a una carpeta en vez de al binario ejecutable (la estructura de la descarga tiene una carpeta `piper` dentro de otra carpeta `piper`). Se resuelve verificando con `ls -la` a dónde apunta el symlink antes de asumir que está bien, y corrigiéndolo para que apunte al binario real, no a la carpeta contenedora.
+
+## 7. GPU para el reconocimiento de voz (Whisper)
+
+**Problema encontrado, recurrente:** tras un reinicio de la máquina, `nvidia-smi` dejaba de funcionar dentro de Ubuntu con el error "could not communicate with the NVIDIA driver". La causa es que la ruta de librerías de WSL2 (`/usr/lib/wsl/lib`) no queda incluida por defecto en el `PATH` del sistema Linux. La solución permanente es agregar esa ruta al `.bashrc`:
+
+```bash
+echo 'export PATH=/usr/lib/wsl/lib:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+
+## 8. Micrófono
+
+WSL2 no tiene acceso directo y estable al hardware de audio de Windows. La solución adoptada no es técnicamente elegante, pero es robusta: grabar el audio del lado de Windows y pasarlo a Linux a través de una carpeta compartida entre ambos sistemas, en vez de intentar forzar una comunicación directa de hardware entre Windows y WSL2.
+
+## 9. Estructura de carpetas mínima
+
+El proyecto vive en `~/asistente/`, dentro del usuario de Linux (no en una carpeta de Windows montada, salvo para los documentos a indexar — ver más abajo). La estructura mínima real, documentada a lo largo de las sesiones, es:
+
+```
+~/asistente/
+├── aria_core.py           # punto de entrada de la lógica de respuesta
+├── ingesta.py              # indexa documentos nuevos al RAG (ChromaDB)
+├── agente_sistema.py        # agente de diagnóstico y estado del sistema
+├── agente_noticias.py       # agente de noticias/sentimiento
+├── cache_respuestas.py      # caché de respuestas ya generadas
+├── logger_aria.py           # logging estructurado a JSONL
+├── ohlcv_cache.py           # caché de velas de precio (trading)
+├── decision_log.py          # registro de decisiones de trading
+├── watchdog.py               # supervisa los procesos y reinicia si hace falta
+├── telegram_bot.py          # integración con Telegram
+├── test_basicos.py           # suite de pruebas mínimas del sistema
+├── rollback.sh                # vuelve el código a un tag de git anterior
+├── start_aria.sh              # arranca todos los servicios en orden (ver sección 10)
+└── logs/
+    └── aria_YYYY-MM-DD.jsonl  # un archivo de log por día
+```
+
+Los documentos a indexar en el RAG viven en Windows, en una carpeta que ARIA lee (montada desde `/mnt/c/...` o sincronizada) — no dentro de `~/asistente/`. El patrón real documentado fue una carpeta de Windows dedicada a esto (`Documents\Documentos IA\`), detectada e indexada automáticamente en cada arranque. Formatos soportados: PDF, Word (`.docx`), TXT, Markdown y CSV.
+
+`~/asistente_env/` (el entorno virtual de Python, paso 5) vive fuera de `~/asistente/`, como carpeta hermana — no es parte del código del proyecto y no se versiona con git.
+
+## 10. Ejemplo de script de arranque (sanitizado)
+
+El proyecto real usa `start_aria.sh` para levantar todos los servicios en orden, con verificación de salud en cada paso. El ejemplo de abajo **no es el código fuente original** (no se dispone del archivo literal para publicar) — es una reconstrucción fiel de la lógica documentada en las sesiones donde se creó y ajustó el script, pensada para que alguien pueda replicar el mismo comportamiento:
+
+```bash
+#!/bin/bash
+# start_aria.sh — arranque ordenado de todos los servicios de ARIA
+# Reconstrucción sanitizada del comportamiento documentado del script real.
+
+cd ~/asistente
+source ~/asistente_env/bin/activate
+
+# 1. Matar procesos viejos antes de arrancar.
+# IMPORTANTE: el patrón de pkill debe matchear el comando REAL del proceso
+# (visible en `ps aux`), no el nombre del archivo .py que uno cree que corre.
+# Un bug real del proyecto: "pkill -f api_voz.py" no mataba nada porque el
+# proceso real corría como "uvicorn api_voz:app" — dejaba procesos zombies
+# vivos y el puerto ocupado en el siguiente arranque.
+pkill -f "api_aria:app" 2>/dev/null
+pkill -f "api_voz:app" 2>/dev/null
+pkill -f "telegram_bot" 2>/dev/null
+pkill -f "gradio_app" 2>/dev/null
+sleep 2
+
+# 2. Verificar la variable de modo antes de levantar nada.
+echo "TRADING_MODE actual: ${TRADING_MODE:-no seteado}"
+
+# 3. Levantar los servicios EN ORDEN, con verificación de salud entre cada uno.
+uvicorn api_aria:app --host 0.0.0.0 --port 8001 &
+sleep 5
+curl -sf http://localhost:8001 > /dev/null || echo "ERROR: api_aria no responde"
+
+uvicorn api_voz:app --host 0.0.0.0 --port 8000 &
+# Whisper tarda más de 5 segundos en cargar en GPU — un sleep corto acá
+# generaba falsos "ERROR: api_voz no responde" en el chequeo de salud.
+# Se ajustó a 15 segundos tras confirmar la causa real.
+sleep 15
+curl -sf http://localhost:8000 > /dev/null || echo "ERROR: api_voz no responde"
+
+python telegram_bot.py &
+sleep 3
+
+python gradio_app.py &
+sleep 3
+curl -sf http://localhost:7861 > /dev/null || echo "ERROR: gradio_app no responde"
+
+echo "=== ARIA arrancado ==="
+```
+
+Sin rutas de disco reales, sin credenciales y sin nombres de host — solo el orden de arranque, los puertos usados y la lógica de verificación que el proyecto real documentó como necesaria para un arranque limpio y repetible.
+
+## 11. Verificación final
+
+Antes de dar la instalación por terminada, confirmar cada componente por separado: que Ollama responde, que el modelo personalizado se identifica correctamente, que el entorno Python activa sin errores, que Piper genera un archivo de audio de prueba, que `nvidia-smi` reporta la GPU, y que una pregunta de prueba real a través de la interfaz obtiene una respuesta coherente.
+
+---
+
+*Nota editorial: los pasos y errores de las secciones 2 a 8 (y la sección 11) están documentados con cita textual completa en el manual técnico interno del proyecto, correspondiente a las primeras semanas de instalación (mayo-junio de 2026), tal como ya constaba en la versión anterior de esta guía. Las secciones agregadas en esta ampliación tienen distinto grado de certeza y se distinguen así: el hardware (sección 0) y el comando `wsl --install -d Ubuntu-24.04` con la comparación Ubuntu 24.04 vs. 26.04 (sección 1) están tomados con cita textual de una reinstalación completa documentada en la Sesión 18 (1 de junio de 2026) y de la Sesión 1 (25 de mayo de 2026) respectivamente. La nota sobre el límite de memoria de WSL2 (sección 0) está tomada con cita textual de la Sesión 86. La estructura de carpetas (sección 9) es una reconstrucción a partir de referencias reales a archivos y rutas dispersas en múltiples sesiones (principalmente las primeras 22 y la 41-42) — no existe, en el material disponible, una única sesión que documente el árbol completo de una sola vez. El script de arranque (sección 10) es una reconstrucción de comportamiento documentado (Sesiones 41-42), explícitamente marcada como tal en el cuerpo del documento: no es el código fuente original, que no está disponible para publicar. Se generalizaron rutas de disco y nombres de usuario reales que aparecían en las fuentes originales, siguiendo la regla de privacidad de este repositorio.*
+
+
+================================================================
+ARCHIVO: tecnico/configuracion.md
+================================================================
+
+# Configuración
+
+Variables de entorno usadas por ARIA, sin valores reales — solo nombre, propósito y notas sobre cómo se cargan. Ninguna clave, token o contraseña de este proyecto se reproduce en este repositorio, ni siquiera parcial o enmascarada.
+
+## Variables principales
+
+| Variable | Propósito |
+|---|---|
+| `GROQ_API_KEY` | Clave de API para el proveedor de inferencia en la nube usado por el agente de trading cuando `TRADING_MODE=CLOUD`. |
+| `GROQ_API_KEY_TECNOLOGIA` | Clave de API equivalente, usada por el agente de tecnología. |
+| `GROQ_API_KEY_IA` | Clave de API equivalente, usada por el agente de IA. |
+| `TRADING_MODE` | Controla si el agente de trading responde con el modelo local (RAG) o con el proveedor en la nube. Valores usados: `LOCAL` o `CLOUD`. |
+| `ARIA_DISABLE_WHISPER` | Desactiva el reconocimiento de voz cuando no hace falta (por ejemplo, en pruebas automatizadas). |
+| `ARIA_SKILLS_DISCOVERY` | Activa el descubrimiento automático de nuevas capacidades (skills/handlers) sin tener que registrarlas a mano. |
+
+## Dónde viven
+
+Las variables se definen en un archivo `.env` dentro de la carpeta del proyecto, no versionado en git. Algunas se exportan también desde `~/.bashrc` cuando necesitan persistir en cualquier terminal nueva, no solo en el proceso que carga el `.env` directamente.
+
+## Un problema real de configuración, documentado como advertencia
+
+Una variable exportada en `~/.bashrc` tiene prioridad sobre lo que diga el archivo `.env` en cada terminal nueva que se abre — y esa prioridad no es evidente a simple vista. Hubo un caso real donde `TRADING_MODE` se cambió en el `.env` pero el sistema seguía comportándose como si tuviera el valor viejo, porque una línea olvidada en `.bashrc` seguía exportando el valor anterior en cada terminal. La lección: si una variable no parece tomar el valor esperado, verificar primero si existe una exportación duplicada en `.bashrc` antes de asumir un bug en el código.
+
+Otro caso real: cargar un archivo `.env` con `source` no siempre funciona si el archivo tiene comillas o valores de ejemplo sin completar — puede hacer falta extraer el valor explícitamente (por ejemplo, con `grep` y `cut`) en vez de confiar en que el `source` interprete el archivo como se espera.
+
+## Dominios permitidos (Módulo 9, Fase 3)
+
+La búsqueda web acotada del sistema no consulta la web en general — cada caso de uso conectado tiene una fuente específica, y el conjunto de dominios permitidos se mantiene en un archivo de configuración separado (`dominios_permitidos.json`), no en variables de entorno. Ver [`/tecnico/arquitectura.md`](arquitectura.md) para el detalle de cómo se usa.
+
+---
+
+*Nota editorial: los nombres de variables y los dos problemas de configuración documentados en este archivo están tomados con cita textual de manuales técnicos internos del proyecto. Ningún valor real de clave, token o contraseña se reproduce aquí, siguiendo la regla de privacidad del repositorio — incluso los que aparecían truncados o parcialmente visibles en la fuente original se omitieron por completo.*
+
+
+================================================================
+ARCHIVO: tecnico/metodologia_de_trabajo.md
+================================================================
+
+# Metodología de trabajo
+
+Hábitos de trabajo estandarizados a lo largo del proyecto, como referencia reutilizable — sin tener que leer la narrativa completa de `/historia/` para saber cómo se trabajaba en la práctica.
+
+## Las tres capas de backup
+
+Ninguna capa sola alcanza. Cada una cubre algo que las otras dos no cubren:
+
+1. **Control de versiones (git)** — guarda la historia de cómo se llegó a cada estado del código, con la posibilidad de volver atrás con precisión quirúrgica. No cubre el disco virtual completo, ni el vectorstore (que vive fuera del repositorio por diseño), ni el estado del sistema operativo.
+2. **Script dedicado de respaldo completo** (`backup_completo.sh`, con una versión liviana, `backup_liviano.sh`, para copias más rápidas) — copia el sistema completo, incluido lo que git no versiona. No reemplaza a git: una copia completa no tiene historial de cambios, solo una fotografía de un momento dado.
+3. **Tarea automática nocturna (cron)** — corre sin intervención humana, todas las noches, como última red de seguridad. Existe desde etapas tempranas del proyecto, pero durante un tiempo cubría solo la carpeta de código, no el disco virtual completo de WSL2 — un límite real que se descubrió de la forma más costosa posible (ver más abajo).
+
+Se sumó, más adelante, una cuarta pieza —`backup_git.sh`, un `git bundle`— pensada específicamente para poder reconstruir el repositorio completo en una máquina nueva sin depender de un servicio externo de hosting de código.
+
+## Por qué ninguna alcanza sola: el incidente que lo probó
+
+El disco virtual de WSL2 (`ext4.vhdx`) desapareció por completo tras una limpieza de disco corrida sin darse cuenta de que ese archivo era, para la herramienta de limpieza, "innecesario". El cron nocturno de esa etapa cubría la carpeta de código, no el disco virtual entero — no hubiera servido para este caso puntual. Lo que salvó el trabajo fue un backup manual, hecho por costumbre más que por previsión, apenas dos días antes.
+
+De ahí salió la regla de las tres capas activas al mismo tiempo, no una sola: si una capa no cubre algo, que lo cubra otra. Ver [`/historia/03_aprender_a_trabajar_en_serio.md`](../historia/03_aprender_a_trabajar_en_serio.md) para el relato completo.
+
+## La regla del cierre de sesión
+
+Un backup automático corriendo bien puede dar una falsa sensación de que todo está cubierto. En una etapa del proyecto, cuatro sesiones de trabajo completas pasaron sin que se confirmara un solo cambio en git — el repositorio existía, se sabía usar, pero verificar y confirmar los cambios se había ido quedando afuera de la rutina diaria mientras los backups automáticos, esos sí corriendo cada noche, disimulaban el hueco.
+
+La regla que quedó, sin excepciones desde entonces: **verificar el estado del repositorio (`git status`) al cerrar cada sesión de trabajo, siempre, además del backup — nunca en lugar del backup.** Un backup guarda una fotografía completa; git guarda el camino recorrido. Hacen falta los dos.
+
+## Probar en aislamiento antes de tocar producción
+
+Regla explícita del proyecto, con este orden fijo:
+
+1. Escribir un script de prueba aislado (`test_xxx.py`, en una carpeta separada del código real) que simule el cambio.
+2. Probar ese script aislado con evidencia real, no con la impresión de que "debería funcionar".
+3. Solo si el script aislado funciona bien, aplicar el cambio al archivo de producción.
+
+Un caso real de aplicación de esta regla: antes de escribir el enrutador central del sistema, se armó primero un archivo de pruebas con veinte casos conocidos, en una carpeta separada, y se validó contra ese archivo antes de tocar nada real — con el resultado completo (20/20) confirmado antes de migrar. La misma disciplina se aplicó, más adelante, a cualquier técnica que necesitara cargar un volumen grande de datos en memoria: medir el impacto real en aislado primero, porque un proceso así puede morir sin ningún aviso si se corre directo contra el sistema real.
+
+Una excepción documentada y explícita: los propios scripts de backup, por vivir fuera de la carpeta versionada del proyecto, se editan con una copia de respaldo previa del archivo y verificación de sintaxis, pero sin pasar por el flujo completo de prueba aislada — no aplica de la misma forma cuando el archivo que se edita no forma parte del repositorio.
+
+## Medir en vez de suponer: el golden set
+
+Un conjunto fijo de preguntas de referencia, con la respuesta o ruta esperada para cada una, usado para confirmar con evidencia objetiva si un cambio mejora o empeora el sistema real — no con la impresión subjetiva de que "ahora responde mejor". Creció de 20 preguntas iniciales a 78 hacia el cierre del material disponible (Sesión 122), y se convirtió en el paso obligatorio antes de dar por cerrada cualquier mejora significativa de contenido o de enrutamiento. Ver [`/meta/glosario.md`](../meta/glosario.md).
+
+## El flujo completo de un cambio real
+
+Para cualquier cambio de código en producción, el patrón documentado y repetido es: backup del archivo antes de tocarlo, prueba en aislamiento, revisión del diff exacto antes de aplicar, aprobación explícita del cambio, aplicación en producción, y verificación posterior de que el sistema sigue funcionando. Ningún paso se salta para ahorrar tiempo, incluso en cambios que parecen triviales — varios de los bugs documentados en [`/tecnico/bugs_famosos.md`](bugs_famosos.md) empezaron, precisamente, como cambios que parecían triviales.
+
+---
+
+*Nota editorial: los hábitos de este documento están tomados con cita textual de instructivos de trabajo internos del proyecto y de manuales de sesión donde se aplicaron en la práctica, incluyendo el caso real de las veinte pruebas iniciales del enrutador y el incidente que originó la regla de las tres capas de backup.*
+
+
+================================================================
+ARCHIVO: meta/estado_actual.md
+================================================================
+
+# Estado actual de ARIA
+
+> **Sello de frescura**: este documento refleja el estado del proyecto al cierre de la Sesión 122 (23-24 de agosto de 2026). No hay garantía de que siga siendo exacto más allá de esa fecha — ARIA es un proyecto activo, no archivado. Último commit conocido de esa sesión: `27ca543` (documentación de una limpieza del vectorstore en `ENTORNO.md`). Un commit anterior de la misma sesión, `c5673d1`, aplicó un fix real de caché — se lista aquí para no perder la referencia, pero `27ca543` es el más reciente de los dos según el orden de trabajo documentado en el manual de la Sesión 122.
+
+## Qué funciona
+
+- **Routing y respuesta**: el enrutador central (`config_dominios.py` + lógica asociada) clasifica preguntas por dominio (trading, tecnología, IA, memoria personal, general) y las dirige al agente correspondiente. El golden set de verificación —78 preguntas de referencia, ampliado desde 54 en la propia Sesión 122— midió 84.6% de aprobación al cierre del material disponible, sin regresiones respecto a la corrida anterior (73.1%).
+- **Biblioteca RAG**: cerca de mil archivos distintos indexados en ChromaDB entre los dominios de trading, programación, IA/ML y tecnología general, con **606.064 fragmentos de texto (chunks) buscables al cierre de la Sesión 120 (22/08/2026)**, la cifra más reciente confirmada. El conteo total no es estable en el tiempo: llegó a un pico de 1.476.391 chunks a mediados de agosto (Sesión 110, tras reconstruir el sistema de un incidente de corrupción del índice), antes de una limpieza masiva de duplicación acumulada en esa reconstrucción (Sesiones 111-112) que lo bajó a ~430.364, seguida de nuevas incorporaciones de contenido y una segunda limpieza de duplicados (Sesión 119) que lo dejaron en la cifra actual — ver el detalle completo en `/tecnico/arquitectura.md`. Incluye la biblioteca propia del curso de trading (ver `/historia/06_como_aria_aprendio_a_operar.md`).
+- **Memoria personal**: migrada de un archivo de texto plano a una base de datos real (Sesión 57). Al cierre de la Sesión 122 tenía 28 datos activos, tras una limpieza que eliminó 41% de contaminación acumulada (duplicados exactos y preguntas técnicas guardadas por error).
+- **Caché semántico ("Director Cognitivo")**: reutiliza respuestas ya elaboradas para preguntas parecidas, para no pagar dos veces el costo de una consulta a un modelo externo.
+- **Módulo 9 — autonomía, Fase 3**: búsqueda web conectada a casos de uso reales (tipo de cambio, precio de plata, índice de miedo y codicia del mercado). **En período de prueba formal desde el 23 de agosto de 2026** — no cerrado ni presentado como funcionalidad definitiva.
+- **Infraestructura de dos máquinas**: "SERVIDOR" (máquina principal) y "PRUEBAS" (máquina secundaria, con GPU propia desde la Sesión 102), con la nomenclatura fija desde la Sesión 101.
+
+## Qué falta o está en curso
+
+- **Divergencia de commits entre SERVIDOR y PRUEBAS**: pendiente de comparación completa con acceso a ambas máquinas — sin resolver al cierre del material disponible.
+- **Ruido nuevo en memoria personal**: preguntas sueltas guardadas por error como si fueran datos personales (el filtro de `aprendizaje_auto.py` no distingue bien pregunta de dato real) — detectado en la Sesión 122, no corregido todavía, mismo criterio de prudencia que en la Sesión 121.
+- **Plan de separación física ARIA/SabriBot**: conversado y documentado (ver `PLAN_FUTURO_ARIA_SabriBot_22_08_2026.md` en el material fuente, con siete pasos definidos), pero no ejecutado al cierre de la Sesión 122. La idea es migrar ARIA a la máquina de Pruebas y transformar el servidor actual en la máquina dedicada a SabriBot.
+- **`dataset_trading.jsonl` desactualizado**: un archivo de preguntas y respuestas pre-armadas sobre el curso de trading que no se sincronizó con el contenido nuevo del vectorstore. Decisión explícita: no se resuelve ahora, se resolverá naturalmente con la separación ARIA/SabriBot.
+- **Fase 4 del Módulo 9**: su alcance concreto está pendiente de reinterpretarse a la luz del plan de migración a dos máquinas.
+
+## Descartado explícitamente (no se retoma sin razón nueva)
+
+- **Fine-tuning local como camino de conocimiento** (LoRA/Unsloth): se entrenó y validó un adaptador real (Sesión 70), pero se descartó como estrategia general — el RAG ya existente cubre el objetivo de que ARIA sepa más sobre un tema, y el fine-tuning es la herramienta equivocada para agregar datos nuevos (sirve para tono/estilo, no para conocimiento).
+- **"Modo Jefe"** (agentes autónomos tipo Plan-and-Execute): descartado como línea de trabajo.
+- **Ejecución de operaciones de trading real desde ARIA**: descartado como límite de diseño, no como pendiente técnico.
+- **Agentes autónomos sin las salvaguardas del proyecto**: descartado.
+- **Webhooks públicos**: descartados.
+- **Subir el repositorio de código a un servicio externo de hosting**: descartado (nota: esta publicación documental es un proyecto distinto, decidido aparte).
+- **Automatizar el arranque de ARIA al iniciar Windows**: descartado.
+- **Graphiti/Zep como memoria temporal de trading**: descartado.
+- **Mapa de liquidaciones de criptomonedas**: investigado con evidencia real, descartado para ARIA — queda documentado como idea válida para SabriBot en el material fuente, no para este sistema.
+- **Agenda con recordatorios telefónicos**: descartada.
+- **Mecanismos de lectura y ejecución automática de señales de trading de terceros** (por ejemplo, vía captura de pantalla y OCR de un canal o grupo ajeno): excluidos de este repositorio por decisión ética, no solo técnica. Aunque hayan existido como experimento dentro del ecosistema más amplio de SabriBot, no se documentan ni se explican acá — el objetivo de este repositorio es enseñar ingeniería de un asistente personal, no ofrecer una receta para automatizar decisiones de trading basadas en señales de otra persona sin el criterio para evaluar el riesgo real.
+- **Sincronización del filtro de detección de `aprendizaje_auto.py`**: descartada por ahora, sin razón nueva para retomarla.
+
+## Límite de seguridad vigente
+
+ARIA no ejecuta operaciones de trading reales. No tiene acceso de escritura a ninguna cuenta de mercado. Cualquier decisión de trading la toma Alejandro Ubios, no el sistema.
+
+---
+
+*Nota editorial: los datos numéricos de este documento (golden set, memoria personal, biblioteca indexada, commits) están tomados directamente del manual de cierre de la Sesión 122 y de manuales de sesiones inmediatamente anteriores, con cita textual verificada. La discrepancia entre los commits `c5673d1` y `27ca543` como "el último" se deja señalada de forma transparente en vez de resuelta a criterio propio — a confirmar por Alejandro si hace falta mayor precisión.*
+
+
+================================================================
+ARCHIVO: meta/linea_de_tiempo.md
+================================================================
+
+# Línea de tiempo
+
+Cronología corta de los hitos principales del proyecto, mayo-agosto de 2026. Para el detalle narrativo de cada hito, ver los capítulos correspondientes en [`/historia/`](../historia/00_indice.md).
+
+| Fecha | Sesión | Hito |
+|---|---|---|
+| 25/05/2026 | 1 | Instalación inicial de ARIA sobre WSL2 (Windows 11 + Ubuntu). Hardware: Intel i9-10900, RTX 3080 10GB, 48GB RAM. |
+| 31/05/2026 | 17 | Adopción del hotword de voz "SOFIA", tras varios intentos fallidos por limitaciones reales de reconocimiento de voz. |
+| 01/06/2026 | 18 | Desaparición del disco virtual (`ext4.vhdx`) por una herramienta de limpieza de disco, y recuperación desde un backup manual. Origen de la disciplina de backups en tres capas. Ubuntu nativo (dual boot) evaluado y descartado. |
+| ~15-17/06/2026 | 33 | Primera mención documentada de SabriBot como proyecto de trading separado, en la misma máquina que ARIA. |
+| 23-24/06/2026 | 34 | Migración de disco principal. Intento fallido de segunda GPU en otra máquina. Primer bug del "precio del oro" diagnosticado (tres capas del sistema compitiendo por la misma palabra), con el término "route shadowing" acuñado tras consultar a cinco colegas de IA. |
+| 24/06/2026 | 35 | Backups migran de Disco C a Disco D. |
+| 04/07/2026 | 43 | Reaparición del bug del precio del oro por una causa distinta (un atajo de respuesta rápida sin las mismas excepciones). |
+| 05/07/2026 | 44 | Primer archivo de pruebas automatizadas escrito antes que el código que debía validar — cambio de metodología. |
+| 08/07/2026 | 49 | Medición real de precisión de enrutamiento: 22% sobre ~890 preguntas reales — hallazgo que instaló las pruebas automatizadas como práctica fija. |
+| 13/07/2026 | 57 | Migración de la memoria personal de archivo de texto a base de datos real. El proyecto pasa internamente de "V7" a "V8". |
+| 13-18/07/2026 | 56-58 | Bug del "dónde vivo" diagnosticado en tres pasadas hasta encontrar la causa real: un atajo que interceptaba la pregunta antes del enrutamiento general. |
+| ~20/07/2026 | 70 | Entrenamiento y validación de un adaptador LoRA propio sobre el contenido del curso de trading (probado, luego descartado como estrategia). |
+| 24/07/2026 | — | Alejandro completa el cuestionario de memoria y olvido de 14 preguntas, que define el criterio de qué debe recordar ARIA. |
+| 28-29/07/2026 | 86-87 | Cuelgues de WSL2 por límite de memoria; ajuste de `.wslconfig`; RAM física sube de 32GB a 48GB. |
+| ~09/08/2026 | 101 | Puesta en marcha de la segunda máquina ("PRUEBAS"), separada de la máquina principal ("SERVIDOR"). |
+| ~13/08/2026 | 103-104 | Descarte explícito del fine-tuning local (LoRA/Unsloth) como camino para agregar conocimiento nuevo — el RAG existente cubre el objetivo. |
+| 15/08/2026 | 110 | Incidente de corrupción del índice de ChromaDB, resuelto con recuperación completa. El vectorstore, ya reconstruido, llega a un pico de 1.476.391 chunks — cifra inflada por duplicación acumulada durante la propia reconstrucción, no solo contenido nuevo. |
+| 16/08/2026 | 111-112 | Limpieza masiva y sistemática de la duplicación acumulada en el incidente anterior: el vectorstore pasa de ~1,4 millones a ~430.364 chunks, verificado con múltiples métodos. |
+| 19-20/08/2026 | 116 | Ampliación grande de la biblioteca de trading: 173 libros nuevos indexados (vectorstore a 608.963 chunks). Primer uso real del "golden set" de preguntas de referencia. |
+| 21/08/2026 | 119 | Resolución completa de un bug de enrutamiento heredado (pérdida de contexto en preguntas de seguimiento). Segunda limpieza de duplicados del vectorstore, en dos rondas (88.021 + 26.844 chunks eliminados): 608.963 → 494.098. |
+| 22/08/2026 | 120 | 8 libros nuevos indexados (vectorstore a 606.064 chunks, la cifra más reciente confirmada). Primer costo real de una prueba de calidad cuantificado ($0.002 USD por 200 rondas). |
+| 23/08/2026 | 121 | Módulo 9 (autonomía), Fase 3: conectados casos de uso reales de búsqueda web. Arranca el período de prueba formal de dos semanas. Documentado el plan de separación física ARIA/SabriBot. |
+| 23-24/08/2026 | 122 | Golden set ampliado a 78 preguntas (84.6% de aprobación). Memoria personal limpiada (57→28 datos activos). Causa raíz de un cuelgue real del sistema encontrada y corregida. Cierre del material disponible al momento de preparar este repositorio. |
+
+---
+
+*Nota editorial: las fechas y números de sesión de esta tabla están tomados de la tabla interna de continuidad verificada durante la redacción de los capítulos de `/historia/` y de los manuales de sesión correspondientes, con cita textual confirmada en cada caso. Las Sesiones 5 a 19 (salvo la 17 y la 18, recuperadas) y la Sesión 27 no están representadas de forma independiente por no haberse conservado o no haber estado disponibles como documentos propios.*
+
+
+================================================================
+ARCHIVO: meta/glosario.md
+================================================================
+
+# Glosario
+
+Términos propios del proyecto, con una referencia de dónde surgieron cuando corresponde. Para conceptos técnicos generales (RAG, embeddings, WSL2), se da una definición breve orientada a este proyecto específico, no una definición exhaustiva del concepto en general.
+
+**Route shadowing** — patrón de bug donde una regla de enrutamiento genérica intercepta una pregunta antes de que una regla más específica, y correcta, tenga oportunidad de responder. Nombrado así tras el bug del precio del oro (Sesión 34, 23-24/06/2026), consultando a cinco colegas de inteligencia artificial. Ver [`/tecnico/bugs_famosos.md`](bugs_famosos.md).
+
+**Director Cognitivo** — el caché semántico de ARIA: guarda respuestas ya elaboradas para preguntas equivalentes, evitando pagar dos veces el costo de una consulta a un modelo externo cuando la pregunta ya se resolvió bien antes. Nace en paralelo a la migración de memoria personal a base de datos (Sesiones 60-61, julio de 2026).
+
+**Handler** — patrón de diseño usado en `aria_core.py`: cada capacidad puntual del sistema (un precio, un cálculo, un dato de memoria personal) es una clase con un método `intentar()` que devuelve una respuesta o `None`. Introducido en la Sesión 54. Ver [`/tecnico/arquitectura.md`](../tecnico/arquitectura.md).
+
+**Golden set** — conjunto fijo de preguntas de referencia, con la respuesta o ruta esperada para cada una, usado para medir con evidencia objetiva si un cambio mejora o empeora el sistema, en vez de confiar en la impresión subjetiva de que "ahora responde mejor". Creció de 54 a 78 preguntas hacia el cierre de la Sesión 122.
+
+**Módulo 9 (Autonomía Acotada)** — el conjunto de capacidades de autonomía de ARIA, organizado en fases numeradas (0 a 4), cada una construida y verificada en producción antes de habilitar la siguiente. Ver [`/tecnico/decisiones.md`](../tecnico/decisiones.md).
+
+**Modo Jefe** — nombre interno de un proyecto de agentes autónomos más ambicioso, tipo Plan-and-Execute, evaluado y descartado sin llegar a construirse. Ver la lista de "descartado explícitamente" en [`/meta/estado_actual.md`](estado_actual.md).
+
+**SERVIDOR / PRUEBAS** — nomenclatura fija, desde la Sesión 101 (agosto de 2026), para las dos máquinas físicas del proyecto: la máquina principal original ("SERVIDOR") y una segunda máquina incorporada más tarde ("PRUEBAS").
+
+**SabriBot** — proyecto de trading automatizado de Alejandro, separado de ARIA desde su origen (documentado en pie ya para la Sesión 33, junio de 2026), en carpetas y entornos propios. No es un módulo de ARIA ni corre bajo su supervisión.
+
+**Curso Sabri** — el flujo de trabajo por el cual el contenido de los cursos de trading de Sabri Conessa se convierte en material indexable para ARIA: capturas de pantalla más transcripción de audio, combinadas en un documento de "clase" estructurado. Ver [`/historia/06_como_aria_aprendio_a_operar.md`](../historia/06_como_aria_aprendio_a_operar.md).
+
+**RAG (Retrieval-Augmented Generation)** — el mecanismo por el cual ARIA responde preguntas sobre documentos indexados: busca los fragmentos de texto más relevantes en la biblioteca (por significado, no por palabra clave exacta) y se los pasa al modelo de lenguaje como contexto antes de generar la respuesta.
+
+**Chunk** — un fragmento de texto en el que se divide un documento al indexarlo, la unidad mínima que ARIA puede recuperar y citar como fuente.
+
+**WSL2 (Windows Subsystem for Linux 2)** — la capa que permite correr Ubuntu dentro de Windows sin reiniciar la máquina. Ver [`/tecnico/decisiones.md`](../tecnico/decisiones.md) para el porqué de esta elección sobre una instalación nativa.
+
+**V6 / V7 / V8** — nombres de versión internos del proyecto a lo largo del tiempo. El salto de V6 a V7 ocurre hacia el cierre de la Sesión 33 (junio de 2026); de V7 a V8, en la Sesión 57 (julio de 2026, coincidiendo con la migración de memoria a base de datos real).
+
+---
+
+*Nota editorial: cada término de este glosario está tomado con cita textual de los manuales de sesión correspondientes. Las referencias de sesión indican dónde se originó o se documentó el término con más claridad, no necesariamente su primera mención absoluta en el material fuente.*
+
+
+================================================================
+ARCHIVO: meta/agradecimientos.md
+================================================================
+
+# Agradecimientos
+
+## Sabri Conessa
+
+> Sabri Conessa confirmó directamente el uso de su nombre real en este documento antes de la publicación del repositorio.
+
+Buena parte de lo que ARIA sabe sobre trading viene de los cursos gratuitos de Sabri Conessa, un trader que opera en vivo con su propio dinero — una condición que Alejandro valora en particular, porque no todo el que enseña a operar también lo demuestra en público. Su forma de explicar, clara y honesta, es la base sobre la que se construyó el "Curso Sabri" documentado en [`/historia/06_como_aria_aprendio_a_operar.md`](../historia/06_como_aria_aprendio_a_operar.md).
+
+Sabri Conessa no participó del proyecto ARIA de ninguna forma, no lo asesoró, y no tiene ninguna relación con sus decisiones técnicas ni con los resultados de trading que Alejandro obtenga usando lo aprendido en sus cursos. Cualquier resultado, bueno o malo, es responsabilidad exclusiva de Alejandro.
+
+## Claude
+
+El compañero de trabajo constante del proyecto, de principio a fin, fue Claude (Anthropic) — no un consejo rotativo de asistentes en igualdad de condiciones. La enorme mayoría de las sesiones de trabajo documentadas en este repositorio se hicieron en conversación directa con Claude: diagnóstico de bugs, diseño de arquitectura, redacción de código, y también la redacción de este mismo repositorio.
+
+## Consultas puntuales
+
+Otros modelos de inteligencia artificial aportaron revisión cruzada y una segunda opinión en momentos puntuales del proyecto — no como compañeros de trabajo constantes, sino como consultas específicas: Qwen, ChatGPT, Grok, DeepSeek, y Kimi.
+
+Kimi, en particular, tuvo una participación repetida y real en la revisión de varios módulos del sistema de memoria: revisó el diseño del módulo de preferencias, aportó la evaluación que dio origen a la unificación de umbrales del caché semántico, y aprobó —con condiciones— el diseño de consolidación automática de conocimiento del Módulo 6, incluyendo un ajuste real sobre el límite de lo que se inyecta en el contexto de cada respuesta.
+
+## Un límite de responsabilidad
+
+Este proyecto no tuvo ningún socio humano. Es un trabajo individual de Alejandro Ubios, con Claude como compañero de trabajo constante y consultas puntuales a otras inteligencias artificiales para revisión cruzada de ideas — no un equipo, ni una empresa, ni un proyecto colaborativo con otras personas.
+
+---
+
+*Nota editorial: la participación de Kimi está documentada con cita textual en varios manuales de sesión de julio de 2026 (módulo de preferencias, Módulo 5, Módulo 6). No se pudo verificar con cita textual una versión anterior de este agradecimiento que atribuía a Kimi el hallazgo de una vulnerabilidad de seguridad o inyección específicamente durante la revisión del Módulo 9 — lo documentado y verificado es su participación real en el Módulo 6 (memoria avanzada), incluyendo un ajuste sobre el límite de inyección de contexto en `obtener_contexto()`, que es lo que se describe aquí en su lugar.*
